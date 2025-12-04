@@ -1,47 +1,26 @@
 import { AlertTriangle, TrendingUp } from "lucide-react";
 
-export default function TopValvesTable({ valves = [] }) {
-  // Mock data si no hay válvulas
+export default function TopValvesTable({ data = [] }) {
+  // Transformar datos de la API al formato del componente
   const displayValves =
-    valves.length > 0
-      ? valves
-      : [
-          {
-            id: "V-402",
-            name: "Válvula Anillo 402",
-            lossIndex: 15.3,
-            status: "critical",
-            trend: "up",
-          },
-          {
-            id: "V-318",
-            name: "Válvula Anillo 318",
-            lossIndex: 12.8,
-            status: "warning",
-            trend: "up",
-          },
-          {
-            id: "V-125",
-            name: "Válvula Anillo 125",
-            lossIndex: 11.5,
-            status: "warning",
-            trend: "down",
-          },
-          {
-            id: "V-567",
-            name: "Válvula Anillo 567",
-            lossIndex: 10.2,
-            status: "normal",
-            trend: "stable",
-          },
-          {
-            id: "V-089",
-            name: "Válvula Anillo 089",
-            lossIndex: 9.8,
-            status: "normal",
-            trend: "down",
-          },
-        ];
+    data.length > 0
+      ? data.map((valve) => ({
+          id: valve.valvula,
+          name: `Válvula ${valve.valvula}`,
+          lossIndex: valve.indice_perdidas,
+          entrada: valve.entrada_promedio,
+          salida: valve.salida_promedio,
+          perdidas: valve.perdidas_promedio,
+          periodos: valve.num_periodos,
+          status:
+            valve.indice_perdidas > 15
+              ? "critical"
+              : valve.indice_perdidas > 10
+              ? "warning"
+              : "normal",
+          trend: valve.perdidas_promedio < 0 ? "down" : "up",
+        }))
+      : [];
 
   const getStatusColor = (status) => {
     switch (status) {

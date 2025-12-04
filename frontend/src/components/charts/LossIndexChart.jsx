@@ -26,20 +26,31 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function LossIndexChart({ data = [] }) {
-  // Mock data si no hay datos
-  const chartData =
-    data.length > 0
-      ? data
-      : [
-          { month: "Ene", real: 8.5, predicted: 8.2 },
-          { month: "Feb", real: 9.2, predicted: 9.0 },
-          { month: "Mar", real: 7.8, predicted: 8.1 },
-          { month: "Abr", real: 10.1, predicted: 9.8 },
-          { month: "May", real: 8.9, predicted: 9.2 },
-          { month: "Jun", real: 9.5, predicted: 9.3 },
-          { month: "Jul", real: 11.2, predicted: 10.8 },
-          { month: "Ago", real: null, predicted: 10.5 },
-        ];
+  // Transformar datos del backend al formato del gráfico
+  const chartData = data.length > 0
+    ? data.map(item => ({
+        month: formatPeriodo(item.periodo),
+        real: item.indice_real ? Math.abs(item.indice_real) : null,
+        predicted: item.indice_predicho ? Math.abs(item.indice_predicho) : null,
+      }))
+    : [
+        { month: "Ene", real: 8.5, predicted: 8.2 },
+        { month: "Feb", real: 9.2, predicted: 9.0 },
+        { month: "Mar", real: 7.8, predicted: 8.1 },
+        { month: "Abr", real: 10.1, predicted: 9.8 },
+        { month: "May", real: 8.9, predicted: 9.2 },
+        { month: "Jun", real: 9.5, predicted: 9.3 },
+        { month: "Jul", real: 11.2, predicted: 10.8 },
+        { month: "Ago", real: null, predicted: 10.5 },
+      ];
+  
+  // Helper para formatear período (YYYYMM -> Mes Corto)
+  function formatPeriodo(periodo) {
+    if (!periodo) return "";
+    const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const mes = parseInt(periodo.toString().slice(-2)) - 1;
+    return meses[mes] || periodo;
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">

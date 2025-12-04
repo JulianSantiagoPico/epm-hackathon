@@ -1,0 +1,15 @@
+# FastAPI Core
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.17
+
+# Data Processing
+pandas>=2.2.0
+numpy>=1.26.0
+
+# CORS
+python-dotenv==1.0.1
+
+# Optional: Database (si decides usarlo después)
+# sqlalchemy==2.0.25
+# psycopg2-binary==2.9.9

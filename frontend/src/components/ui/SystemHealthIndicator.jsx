@@ -3,6 +3,8 @@ import { Activity, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 export default function SystemHealthIndicator({
   healthScore = 85,
   issues = [],
+  bestModel = null,
+  reliabilityData = null,
 }) {
   const getHealthStatus = (score) => {
     if (score >= 80)
@@ -30,19 +32,32 @@ export default function SystemHealthIndicator({
   const status = getHealthStatus(healthScore);
   const StatusIcon = status.icon;
 
-  // Mock issues si no se pasan
-  const displayIssues =
-    issues.length > 0
-      ? issues
-      : [
-          {
-            type: "success",
-            count: 42,
-            label: "Válvulas operando normalmente",
-          },
-          { type: "warning", count: 3, label: "Válvulas requieren monitoreo" },
-          { type: "error", count: 2, label: "Válvulas en estado crítico" },
-        ];
+  // Calcular issues desde reliability data si está disponible
+  const displayIssues = issues.length > 0 
+    ? issues
+    : reliabilityData?.valves
+    ? [
+        {
+          type: "success",
+          count: reliabilityData.valves.filter(v => v.nivel === "ALTA").length,
+          label: "Válvulas operando normalmente",
+        },
+        {
+          type: "warning",
+          count: reliabilityData.valves.filter(v => v.nivel === "MEDIA-ALTA").length,
+          label: "Válvulas requieren monitoreo",
+        },
+        {
+          type: "error",
+          count: reliabilityData.valves.filter(v => v.score < 70).length,
+          label: "Válvulas en estado crítico",
+        },
+      ]
+    : [
+        { type: "success", count: 42, label: "Válvulas operando normalmente" },
+        { type: "warning", count: 3, label: "Válvulas requieren monitoreo" },
+        { type: "error", count: 2, label: "Válvulas en estado crítico" },
+      ];
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">
@@ -130,6 +145,16 @@ export default function SystemHealthIndicator({
           );
         })}
       </div>
+
+      {/* Mejor Modelo Info */}
+      {bestModel && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-textSecondary">Modelo Principal:</span>
+            <span className="text-sm font-semibold text-primary">{bestModel}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

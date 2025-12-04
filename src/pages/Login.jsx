@@ -63,7 +63,7 @@ const Login = () => {
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-textMain mb-4">
-            Acceso a InteliBalance
+            Acceso a Balanc-IA
           </h1>
           <p className="text-lg text-textSecondary max-w-2xl mx-auto">
             Selecciona tu rol para acceder a las funcionalidades
@@ -145,10 +145,10 @@ const Login = () => {
             Sistema de Roles
           </h4>
           <p className="text-sm text-textSecondary leading-relaxed">
-            InteliBalance implementa un sistema de control de acceso basado en
-            roles (RBAC). Cada usuario tiene permisos específicos según su rol
-            en la organización, garantizando la seguridad y el acceso apropiado
-            a la información sensible.
+            Balanc-IA implementa un sistema de control de acceso basado en roles
+            (RBAC). Cada usuario tiene permisos específicos según su rol en la
+            organización, garantizando la seguridad y el acceso apropiado a la
+            información sensible.
           </p>
         </div>
       </div>

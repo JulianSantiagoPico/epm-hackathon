@@ -76,7 +76,7 @@ const Landing = () => {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-textMain mb-6 leading-tight">
-            InteliBalance
+            Balanc-IA
           </h1>
 
           <p className="text-2xl md:text-3xl text-primary font-semibold mb-4">
@@ -130,17 +130,17 @@ const Landing = () => {
       <section id="que-es" className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-textMain mb-6 text-center">
-            ¿Qué es InteliBalance?
+            ¿Qué es Balanc-IA?
           </h2>
 
           <div className="max-w-4xl mx-auto mb-12">
             <p className="text-lg text-textSecondary leading-relaxed text-center mb-8">
-              InteliBalance es un modelo predictivo que estima volúmenes
-              corregidos en válvulas de anillo sin medición física, utilizando
-              datos históricos de macromedición tele-gestionada, consumos de
-              usuarios y balances. Esta tecnología permite a EPM mantener un
-              control preciso de la red de distribución secundaria de gas
-              natural, incluso en puntos donde no hay macromedidores instalados.
+              Balanc-IA es un modelo predictivo que estima volúmenes corregidos
+              en válvulas de anillo sin medición física, utilizando datos
+              históricos de macromedición tele-gestionada, consumos de usuarios
+              y balances. Esta tecnología permite a EPM mantener un control
+              preciso de la red de distribución secundaria de gas natural,
+              incluso en puntos donde no hay macromedidores instalados.
             </p>
           </div>
 
@@ -212,12 +212,12 @@ const Landing = () => {
           </h2>
 
           <p className="text-lg text-textSecondary leading-relaxed mb-8">
-            InteliBalance utiliza algoritmos avanzados de Machine Learning
-            (XGBoost y Prophet) para analizar datos históricos y generar
-            predicciones precisas de balances virtuales. El sistema procesa
-            información de múltiples fuentes, identifica patrones y detecta
-            anomalías en tiempo real, proporcionando alertas accionables para el
-            equipo operativo de EPM.
+            Balanc-IA utiliza algoritmos avanzados de Machine Learning (XGBoost
+            y Prophet) para analizar datos históricos y generar predicciones
+            precisas de balances virtuales. El sistema procesa información de
+            múltiples fuentes, identifica patrones y detecta anomalías en tiempo
+            real, proporcionando alertas accionables para el equipo operativo de
+            EPM.
           </p>
 
           <div className="bg-white p-8 rounded-xl shadow-lg mb-8 border border-border">
@@ -278,7 +278,7 @@ const Landing = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             {/* Créditos */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">InteliBalance</h3>
+              <h3 className="text-xl font-semibold mb-4">Balanc-IA</h3>
               <p className="text-gray-300 text-sm leading-relaxed">
                 Desarrollado por <strong>Karly Mariana Velasquez Acosta</strong>{" "}
                 y <strong>Julian Santiago Pico Pinzon</strong> en el Hackathon
@@ -366,8 +366,7 @@ const Landing = () => {
           {/* Copyright */}
           <div className="border-t border-gray-700 pt-8 text-center">
             <p className="text-gray-400 text-sm">
-              © 2025 InteliBalance - Hackathon EPM. Todos los derechos
-              reservados.
+              © 2025 Balanc-IA - Hackathon EPM. Todos los derechos reservados.
             </p>
             <p className="text-gray-500 text-xs mt-2">
               Empresas Públicas de Medellín E.S.P.

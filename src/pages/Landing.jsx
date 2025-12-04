@@ -19,7 +19,7 @@ const Landing = () => {
   };
 
   // Telegram bot URL - Actualizar con el bot real
-  const TELEGRAM_BOT_URL = "https://t.me/your_bot_username";
+  const TELEGRAM_BOT_URL = "https://t.me/InteliBalance_dudasbot";
 
   // GitHub repo URL - Actualizar con el repositorio real
   const GITHUB_REPO_URL = "https://github.com/your-repo/intelibalance";
@@ -257,7 +257,7 @@ const Landing = () => {
           </div>
 
           <a
-            href="/documentacion/funcionamiento-completo.pdf"
+            href="https://unaulaedu-my.sharepoint.com/:b:/g/personal/karly_velasquez0845_unaula_edu_co/IQBAa7XGjkg7QoHToKVvudoVAdER3tHaWpjgsYJF9_WyBqw?e=LFPoqM"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-secondary transition-colors shadow-lg hover:shadow-xl group"

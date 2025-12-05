@@ -1,5 +1,6 @@
 """Rutas de Balances - Consulta de balances por válvula"""
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import JSONResponse
 from typing import Optional
 import pandas as pd
 from app.services.data_loader import data_loader
@@ -188,17 +189,22 @@ async def analyze_balance(valvula_id: str):
     from openai import OpenAI
     from dotenv import load_dotenv
 
-    # Forzar recarga de variables de entorno para capturar cambios en .env sin reiniciar
-    load_dotenv(override=True)
-
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="OPENAI_API_KEY no configurada en el servidor"
-        )
-
     try:
+        # Forzar recarga de variables de entorno para capturar cambios en .env sin reiniciar
+        # En producción (Docker), esto podría no tener efecto si no hay .env, lo cual está bien.
+        try:
+            load_dotenv(override=True)
+        except Exception:
+            pass
+
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            # Retornar error JSON explícito en lugar de lanzar excepción que podría ser malinterpretada
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "OPENAI_API_KEY no configurada en el servidor", "error_type": "ConfigurationError"}
+            )
+
         # 1. Obtener datos de la válvula (reutilizando lógica de carga)
         balances_df = data_loader.load_balances_virtuales()
         df_valvula = balances_df[balances_df['PUNTO'] == valvula_id].copy()
@@ -265,7 +271,9 @@ async def analyze_balance(valvula_id: str):
 
     except Exception as e:
         print(f"Error en análisis IA: {e}")
-        raise HTTPException(
+        # Retornar JSONResponse para asegurar que CORS headers se puedan adjuntar si es posible,
+        # y para dar info detallada al frontend.
+        return JSONResponse(
             status_code=500,
-            detail=f"Error al generar análisis: {str(e)}"
+            content={"detail": str(e), "error_type": type(e).__name__}
         )

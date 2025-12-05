@@ -52,14 +52,14 @@ export const PERMISSIONS = {
 export const NAVIGATION_ITEMS = {
   [ROLES.ADMIN]: [
     { path: "/admin", label: "Gestión de Datos", icon: "Upload" },
-    { path: "/", label: "Dashboard", icon: "LayoutDashboard" },
+    { path: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
     { path: "/modelos", label: "Modelos", icon: "Brain" },
     { path: "/correlaciones", label: "Correlaciones", icon: "Network" },
     { path: "/balances", label: "Balances", icon: "Scale" },
     { path: "/alertas", label: "Alertas", icon: "AlertTriangle" },
   ],
   [ROLES.DECISION_MAKER]: [
-    { path: "/", label: "Dashboard", icon: "LayoutDashboard" },
+    { path: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
     { path: "/modelos", label: "Modelos", icon: "Brain" },
     { path: "/correlaciones", label: "Correlaciones", icon: "Network" },
     { path: "/balances", label: "Balances", icon: "Scale" },

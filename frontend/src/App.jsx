@@ -20,21 +20,21 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/landing" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
 
         {/* Protected Routes with Layout */}
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="balances" element={<Balances />} />
-          <Route path="correlaciones" element={<Correlations />} />
-          <Route path="modelos" element={<Models />} />
-          <Route path="alertas" element={<Alerts />} />
-          <Route path="admin" element={<Admin />} />
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/balances" element={<Balances />} />
+          <Route path="/correlaciones" element={<Correlations />} />
+          <Route path="/modelos" element={<Models />} />
+          <Route path="/alertas" element={<Alerts />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
 
         {/* Redirect root to landing */}
-        <Route path="*" element={<Navigate to="/landing" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

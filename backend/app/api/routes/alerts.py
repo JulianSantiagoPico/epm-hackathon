@@ -89,26 +89,16 @@ def _get_default_alert_state(severidad: str) -> str:
         return random.choice(["revisada", "resuelta"])
 
 
-@router.get(
-    "/",
-    response_model=AlertsResponse,
-    summary="Obtener todas las alertas",
-    description="Lista todas las alertas activas del sistema de balances virtuales con filtros opcionales"
-)
-def get_all_alerts(
-    nivel: Optional[str] = Query(None, description="Filtrar por nivel: BAJO, MEDIO, ALTO, CRITICO"),
-    valvula: Optional[str] = Query(None, description="Filtrar por válvula específica"),
-    estado: Optional[str] = Query(None, description="Filtrar por estado: pendiente, revisada, resuelta"),
-    tipo: Optional[str] = Query(None, description="Filtrar por tipo: Desbalance, Anomalía"),
-    severidad: Optional[str] = Query(None, description="Filtrar por severidad: critica, alta, media, baja")
+def _get_all_alerts_internal(
+    nivel: Optional[str] = None,
+    valvula: Optional[str] = None,
+    estado: Optional[str] = None,
+    tipo: Optional[str] = None,
+    severidad: Optional[str] = None
 ):
     """
-    Obtiene todas las alertas del sistema con soporte para múltiples filtros.
-    
-    Las alertas se generan cuando:
-    - Índice de pérdidas supera umbrales
-    - Pérdidas negativas (inconsistencias)
-    - Desbalances anormales
+    Lógica interna para obtener alertas.
+    Evita problemas con los objetos Query de FastAPI cuando se llama internamente.
     """
     try:
         alertas_df = data_loader.load_alertas()
@@ -200,6 +190,25 @@ def get_all_alerts(
 
 
 @router.get(
+    "/",
+    response_model=AlertsResponse,
+    summary="Obtener todas las alertas",
+    description="Lista todas las alertas activas del sistema de balances virtuales con filtros opcionales"
+)
+def get_all_alerts(
+    nivel: Optional[str] = Query(None, description="Filtrar por nivel: BAJO, MEDIO, ALTO, CRITICO"),
+    valvula: Optional[str] = Query(None, description="Filtrar por válvula específica"),
+    estado: Optional[str] = Query(None, description="Filtrar por estado: pendiente, revisada, resuelta"),
+    tipo: Optional[str] = Query(None, description="Filtrar por tipo: Desbalance, Anomalía"),
+    severidad: Optional[str] = Query(None, description="Filtrar por severidad: critica, alta, media, baja")
+):
+    """
+    Obtiene todas las alertas del sistema con soporte para múltiples filtros.
+    """
+    return _get_all_alerts_internal(nivel, valvula, estado, tipo, severidad)
+
+
+@router.get(
     "/stats",
     response_model=AlertStatsExtended,
     summary="Estadísticas extendidas de alertas",
@@ -213,7 +222,7 @@ def get_alert_stats():
     """
     try:
         # Primero obtenemos todas las alertas (esto las inicializa si es necesario)
-        response = get_all_alerts()
+        response = _get_all_alerts_internal()
         alertas = response.alertas
         
         if not alertas:
@@ -271,7 +280,7 @@ def get_valve_alerts(
     """
     try:
         # Usamos el endpoint principal con filtro de válvula
-        return get_all_alerts(valvula=valvula_id)
+        return _get_all_alerts_internal(valvula=valvula_id)
     
     except Exception as e:
         raise HTTPException(
@@ -292,7 +301,7 @@ def get_critical_alerts():
     """
     try:
         # Usamos el endpoint principal con filtro de severidad crítica
-        response = get_all_alerts(severidad="critica")
+        response = _get_all_alerts_internal(severidad="critica")
         
         return AlertsResponse(
             alertas=response.alertas,
@@ -334,7 +343,7 @@ def update_alert_status(
             )
         
         # Obtener todas las alertas para validar que existe
-        all_alerts = get_all_alerts()
+        all_alerts = _get_all_alerts_internal()
         
         # Buscar la alerta
         alert_found = None
@@ -354,7 +363,7 @@ def update_alert_status(
         
         # Obtener alerta actualizada
         updated_alert = None
-        for alert in get_all_alerts().alertas:
+        for alert in _get_all_alerts_internal().alertas:
             if alert.id == alert_id:
                 updated_alert = alert
                 break
@@ -387,7 +396,7 @@ def get_recent_alerts(
     Obtiene las alertas más recientes del sistema.
     """
     try:
-        all_alerts = get_all_alerts()
+        all_alerts = _get_all_alerts_internal()
         
         # Ordenar por fecha (más recientes primero) y limitar
         alertas_sorted = sorted(

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Bell, AlertCircle, Send } from "lucide-react";
+import Swal from "sweetalert2";
 import AlertCard from "../components/ui/AlertCard";
 import AlertsTable from "../components/ui/AlertsTable";
 import AlertStatsCard from "../components/ui/AlertStatsCard";
@@ -198,10 +199,32 @@ export default function Alerts() {
               alert.id === alertId ? { ...alert, estado: newStatus } : alert
             )
           );
+
+          // Notificación de éxito
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            },
+          });
+          Toast.fire({
+            icon: "success",
+            title: "Estado actualizado correctamente",
+          });
         }
       } catch (err) {
         console.error("Error al actualizar estado:", err);
-        alert("Error al actualizar el estado de la alerta");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo actualizar el estado de la alerta",
+          confirmButtonColor: "#0088cc",
+        });
       }
     },
     [alerts]

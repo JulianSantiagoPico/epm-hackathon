@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Upload, FileText, CheckCircle, XCircle, Loader } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function UploadCard({
   title,
@@ -57,13 +58,29 @@ export default function UploadCard({
 
       setUploadStatus("success");
 
+      Swal.fire({
+        icon: "success",
+        title: "¡Archivo cargado!",
+        text: `El archivo ${file.name} se ha procesado correctamente.`,
+        confirmButtonColor: "#0088cc",
+        timer: 3000,
+      });
+
       // Resetear después de 3 segundos
       setTimeout(() => {
         setFile(null);
         setUploadStatus(null);
       }, 3000);
     } catch (error) {
+      console.error("Upload error:", error);
       setUploadStatus("error");
+
+      Swal.fire({
+        icon: "error",
+        title: "Error de carga",
+        text: "Hubo un problema al procesar el archivo. Por favor, inténtalo de nuevo.",
+        confirmButtonColor: "#0088cc",
+      });
     }
   };
 

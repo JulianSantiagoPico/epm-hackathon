@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Loader,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function RetrainModelCard({ lastTraining, currentMetrics }) {
   const [isRetraining, setIsRetraining] = useState(false);
@@ -17,7 +18,12 @@ export default function RetrainModelCard({ lastTraining, currentMetrics }) {
       // Simular llamada al backend para reentrenar
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      alert("Reentrenamiento iniciado exitosamente");
+      Swal.fire({
+        icon: "success",
+        title: "Reentrenamiento Iniciado",
+        text: "El proceso de reentrenamiento ha comenzado exitosamente. Recibirás una notificación cuando finalice.",
+        confirmButtonColor: "#0088cc",
+      });
     } finally {
       setIsRetraining(false);
     }

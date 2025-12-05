@@ -12,7 +12,13 @@ const Login = () => {
   const handleLogin = () => {
     if (selectedRole) {
       setRole(selectedRole);
-      navigate("/");
+
+      // Redireccionar según el rol
+      if (selectedRole === ROLES.OPERATOR) {
+        navigate("/alertas");
+      } else {
+        navigate("/dashboard");
+      }
     }
   };
 
@@ -48,7 +54,7 @@ const Login = () => {
       <div className="max-w-5xl w-full">
         {/* Back to Landing */}
         <button
-          onClick={() => navigate("/landing")}
+          onClick={() => navigate("/")}
           className="mb-8 flex items-center gap-2 text-textSecondary hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

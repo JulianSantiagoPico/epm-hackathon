@@ -22,7 +22,7 @@ const Landing = () => {
   const TELEGRAM_BOT_URL = "https://t.me/InteliBalance_dudasbot";
 
   // GitHub repo URL - Actualizar con el repositorio real
-  const GITHUB_REPO_URL = "https://github.com/your-repo/intelibalance";
+  const GITHUB_REPO_URL = "https://github.com/JulianSantiagoPico/epm-hackathon";
 
   const features = [
     {

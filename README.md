@@ -22,32 +22,60 @@ InteliBalance es una plataforma web que permite predecir y monitorear balances v
 
 ### Prerrequisitos
 
-- Node.js 18+
+- **Python 3.10+** (Backend)
+- **Node.js 18+** (Frontend)
 - npm o yarn
 
-### Instalación
+### Instalación y Ejecución
 
-```bash
-# Clonar el repositorio
-git clone https://github.com/your-repo/intelibalance.git
-cd intelibalance
+#### Opción 1: Script Automático (Recomendado)
 
-# Instalar dependencias
-npm install
-
-# Iniciar servidor de desarrollo
-npm run dev
-
-# Acceder a http://localhost:5173
+```powershell
+# Inicia backend y frontend automáticamente
+.\start-dev.ps1
 ```
 
+#### Opción 2: Manual
+
+**Backend:**
+
+```bash
+cd backend
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### URLs de Desarrollo
+
+- **Frontend**: http://localhost:5173
+- **Backend**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
 ### Scripts Disponibles
+
+**Frontend:**
 
 ```bash
 npm run dev      # Modo desarrollo con hot reload
 npm run build    # Build de producción
 npm run preview  # Preview del build
 npm run lint     # Ejecutar ESLint
+```
+
+**Backend:**
+
+```bash
+uvicorn app.main:app --reload  # Desarrollo
+uvicorn app.main:app           # Producción
 ```
 
 ---

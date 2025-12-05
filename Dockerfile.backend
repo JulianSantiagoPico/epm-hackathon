@@ -1,0 +1,37 @@
+# Usar una imagen base de Python oficial y ligera
+FROM python:3.10-slim
+
+# Establecer el directorio de trabajo en la raíz del contenedor
+WORKDIR /app
+
+# Instalar dependencias del sistema si son necesarias
+RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copiar el archivo de requerimientos
+COPY backend/requirements.txt backend/requirements.txt
+
+# Instalar las dependencias de Python
+RUN pip install --no-cache-dir -r backend/requirements.txt
+
+# Copiar el código del backend
+COPY backend/ backend/
+
+# Copiar la carpeta de datos (CRÍTICO: Debe estar en el contexto de build)
+COPY BALANC-IA/ BALANC-IA/
+
+# Establecer variables de entorno para que el backend encuentre los datos
+# Aseguramos que el backend sepa dónde está BALANC-IA relativo a su ejecución
+ENV PYTHONPATH=/app
+ENV DATA_PATH=/app/BALANC-IA
+
+# Establecer el directorio de trabajo para ejecutar la app
+WORKDIR /app/backend
+
+# Exponer el puerto (Railway usa la variable PORT)
+ENV PORT=8000
+EXPOSE $PORT
+
+# Comando de inicio
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port $PORT"]

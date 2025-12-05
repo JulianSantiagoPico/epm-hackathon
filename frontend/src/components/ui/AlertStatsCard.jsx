@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -7,12 +8,57 @@ import {
   Info,
   AlertCircle,
 } from "lucide-react";
+import { alertsAPI } from "../../services/alertsService";
 
-export default function AlertStatsCard({ stats }) {
+export default function AlertStatsCard({ stats: propStats }) {
+  const [stats, setStats] = useState(propStats);
+  const [loading, setLoading] = useState(!propStats);
+
+  // Si no se pasan stats como prop, cargar desde la API
+  useEffect(() => {
+    if (!propStats) {
+      loadStats();
+    }
+  }, [propStats]);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const data = await alertsAPI.getStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Error al cargar estadísticas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Usar stats de props o del estado
+  const currentStats = propStats ||
+    stats || {
+      total: 0,
+      pendientes: 0,
+      revisadas: 0,
+      resueltas: 0,
+      criticas: 0,
+      altas: 0,
+      medias: 0,
+      bajas: 0,
+    };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md border border-border p-12">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
   const statCards = [
     {
       title: "Pendientes",
-      value: stats.pendientes,
+      value: currentStats.pendientes,
       icon: AlertTriangle,
       color: "error",
       bgColor: "bg-error/10",
@@ -20,7 +66,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Revisadas",
-      value: stats.revisadas,
+      value: currentStats.revisadas,
       icon: Eye,
       color: "warning",
       bgColor: "bg-warning/10",
@@ -28,7 +74,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Resueltas",
-      value: stats.resueltas,
+      value: currentStats.resueltas,
       icon: CheckCircle2,
       color: "success",
       bgColor: "bg-success/10",
@@ -36,7 +82,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Total",
-      value: stats.total,
+      value: currentStats.total,
       icon: Clock,
       color: "primary",
       bgColor: "bg-primary/10",
@@ -47,7 +93,7 @@ export default function AlertStatsCard({ stats }) {
   const severityCards = [
     {
       title: "Críticas",
-      value: stats.criticas,
+      value: currentStats.criticas,
       icon: XCircle,
       color: "error",
       bgColor: "bg-error/10",
@@ -55,7 +101,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Altas",
-      value: stats.altas,
+      value: currentStats.altas,
       icon: AlertTriangle,
       color: "warning",
       bgColor: "bg-warning/10",
@@ -63,7 +109,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Medias",
-      value: stats.medias,
+      value: currentStats.medias,
       icon: AlertCircle,
       color: "warning",
       bgColor: "bg-warning/5",
@@ -71,7 +117,7 @@ export default function AlertStatsCard({ stats }) {
     },
     {
       title: "Bajas",
-      value: stats.bajas,
+      value: currentStats.bajas,
       icon: Info,
       color: "success",
       bgColor: "bg-success/10",

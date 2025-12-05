@@ -1,78 +1,49 @@
-import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { memo, useMemo } from "react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
-export default function BalanceTable({ valveId, data = [] }) {
-  // Mock data
-  const displayData =
-    data.length > 0
-      ? data
-      : [
-          {
-            month: "Enero 2025",
-            entrada: 12500,
-            salida: 11450,
-            perdidas: 1050,
-            indice: 8.4,
-            tipo: "real",
-          },
-          {
-            month: "Febrero 2025",
-            entrada: 13200,
-            salida: 11980,
-            perdidas: 1220,
-            indice: 9.2,
-            tipo: "real",
-          },
-          {
-            month: "Marzo 2025",
-            entrada: 11800,
-            salida: 10950,
-            perdidas: 850,
-            indice: 7.2,
-            tipo: "real",
-          },
-          {
-            month: "Abril 2025",
-            entrada: 14100,
-            salida: 12670,
-            perdidas: 1430,
-            indice: 10.1,
-            tipo: "real",
-          },
-          {
-            month: "Mayo 2025",
-            entrada: 13500,
-            salida: 12285,
-            perdidas: 1215,
-            indice: 9.0,
-            tipo: "real",
-          },
-          {
-            month: "Junio 2025",
-            entrada: 12900,
-            salida: 11738,
-            perdidas: 1162,
-            indice: 9.0,
-            tipo: "real",
-          },
-          {
-            month: "Julio 2025",
-            entrada: 15200,
-            salida: 13528,
-            perdidas: 1672,
-            indice: 11.0,
-            tipo: "real",
-          },
-          {
-            month: "Agosto 2025",
-            entrada: 14800,
-            salida: 13392,
-            perdidas: 1408,
-            indice: 9.5,
-            tipo: "predicho",
-          },
+const BalanceTable = memo(function BalanceTable({
+  valveId,
+  data = [],
+  kpis = null,
+}) {
+  // Transformar datos de la API al formato del componente (memoizado)
+  const displayData = useMemo(() => {
+    return data.map((item) => {
+      // Formato de fecha: convertir periodo YYYYMM a texto legible
+      const formatPeriodo = (periodo) => {
+        if (!periodo) return "N/A";
+        const year = periodo.substring(0, 4);
+        const month = periodo.substring(4, 6);
+        const meses = [
+          "Enero",
+          "Febrero",
+          "Marzo",
+          "Abril",
+          "Mayo",
+          "Junio",
+          "Julio",
+          "Agosto",
+          "Septiembre",
+          "Octubre",
+          "Noviembre",
+          "Diciembre",
         ];
+        return `${meses[parseInt(month) - 1]} ${year}`;
+      };
+
+      return {
+        month: formatPeriodo(item.periodo),
+        entrada: item.entrada || 0,
+        salida: item.salida,
+        perdidas: item.perdidas,
+        indice: item.indice,
+        tipo: item.es_pronostico ? "predicho" : "real",
+      };
+    });
+  }, [data]);
 
   const getIndexColor = (indice) => {
+    if (indice === null || indice === undefined) return "text-textSecondary";
     if (indice >= 10) return "text-error";
     if (indice >= 8) return "text-warning";
     return "text-success";
@@ -83,7 +54,7 @@ export default function BalanceTable({ valveId, data = [] }) {
       return <CheckCircle2 className="w-4 h-4 text-success" />;
     if (tipo === "predicho")
       return <AlertCircle className="w-4 h-4 text-primary" />;
-    return <XCircle className="w-4 h-4 text-textSecondary" />;
+    return null;
   };
 
   return (
@@ -131,19 +102,33 @@ export default function BalanceTable({ valveId, data = [] }) {
                   {row.month}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-textMain">
-                  {row.entrada.toLocaleString()}
+                  {row.entrada
+                    ? row.entrada.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-textMain">
-                  {row.salida ? row.salida.toLocaleString() : "-"}
+                  {row.salida !== null && row.salida !== undefined
+                    ? row.salida.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-warning">
-                  {row.perdidas ? row.perdidas.toLocaleString() : "-"}
+                  {row.perdidas !== null && row.perdidas !== undefined
+                    ? row.perdidas.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <span
                     className={`text-sm font-bold ${getIndexColor(row.indice)}`}
                   >
-                    {row.indice.toFixed(1)}%
+                    {row.indice !== null && row.indice !== undefined
+                      ? `${row.indice.toFixed(1)}%`
+                      : "-"}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -170,27 +155,39 @@ export default function BalanceTable({ valveId, data = [] }) {
               </td>
               <td className="px-6 py-4 text-sm font-bold text-right text-textMain">
                 {displayData
-                  .reduce((sum, row) => sum + row.entrada, 0)
-                  .toLocaleString()}{" "}
+                  .reduce((sum, row) => sum + (row.entrada || 0), 0)
+                  .toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
                 m³
               </td>
               <td className="px-6 py-4 text-sm font-bold text-right text-textMain">
                 {displayData
                   .reduce((sum, row) => sum + (row.salida || 0), 0)
-                  .toLocaleString()}{" "}
+                  .toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
                 m³
               </td>
               <td className="px-6 py-4 text-sm font-bold text-right text-warning">
-                {displayData
-                  .reduce((sum, row) => sum + (row.perdidas || 0), 0)
-                  .toLocaleString()}{" "}
+                {kpis
+                  ? Math.abs(kpis.total_perdidas).toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })
+                  : displayData
+                      .reduce((sum, row) => sum + (row.perdidas || 0), 0)
+                      .toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}{" "}
                 m³
               </td>
               <td className="px-6 py-4 text-sm font-bold text-right text-textMain">
-                {(
-                  displayData.reduce((sum, row) => sum + row.indice, 0) /
-                  displayData.length
-                ).toFixed(1)}
+                {kpis
+                  ? kpis.indice_promedio.toFixed(1)
+                  : displayData.filter((row) => row.indice !== null).length > 0
+                  ? (
+                      displayData
+                        .filter((row) => row.indice !== null)
+                        .reduce((sum, row) => sum + row.indice, 0) /
+                      displayData.filter((row) => row.indice !== null).length
+                    ).toFixed(1)
+                  : "0.0"}
                 %
               </td>
               <td></td>
@@ -200,4 +197,6 @@ export default function BalanceTable({ valveId, data = [] }) {
       </div>
     </div>
   );
-}
+});
+
+export default BalanceTable;

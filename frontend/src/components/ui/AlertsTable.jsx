@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { AlertTriangle, CheckCircle2, Eye, Filter } from "lucide-react";
 
-export default function AlertsTable({
+const AlertsTable = memo(function AlertsTable({
   alerts,
   onUpdateStatus,
   filters,
@@ -221,4 +222,6 @@ export default function AlertsTable({
       )}
     </div>
   );
-}
+});
+
+export default AlertsTable;

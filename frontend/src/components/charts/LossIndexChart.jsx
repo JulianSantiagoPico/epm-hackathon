@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   LineChart,
   Line,
@@ -9,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 rounded-lg shadow-lg border border-border">
@@ -23,31 +24,47 @@ const CustomTooltip = ({ active, payload, label }) => {
     );
   }
   return null;
-};
+});
 
-export default function LossIndexChart({ data = [] }) {
+const LossIndexChart = memo(function LossIndexChart({ data = [] }) {
   // Transformar datos del backend al formato del gráfico
-  const chartData = data.length > 0
-    ? data.map(item => ({
-        month: formatPeriodo(item.periodo),
-        real: item.indice_real ? Math.abs(item.indice_real) : null,
-        predicted: item.indice_predicho ? Math.abs(item.indice_predicho) : null,
-      }))
-    : [
-        { month: "Ene", real: 8.5, predicted: 8.2 },
-        { month: "Feb", real: 9.2, predicted: 9.0 },
-        { month: "Mar", real: 7.8, predicted: 8.1 },
-        { month: "Abr", real: 10.1, predicted: 9.8 },
-        { month: "May", real: 8.9, predicted: 9.2 },
-        { month: "Jun", real: 9.5, predicted: 9.3 },
-        { month: "Jul", real: 11.2, predicted: 10.8 },
-        { month: "Ago", real: null, predicted: 10.5 },
-      ];
-  
+  const chartData =
+    data.length > 0
+      ? data.map((item) => ({
+          month: formatPeriodo(item.periodo),
+          real: item.indice_real ? Math.abs(item.indice_real) : null,
+          predicted: item.indice_predicho
+            ? Math.abs(item.indice_predicho)
+            : null,
+        }))
+      : [
+          { month: "Ene", real: 8.5, predicted: 8.2 },
+          { month: "Feb", real: 9.2, predicted: 9.0 },
+          { month: "Mar", real: 7.8, predicted: 8.1 },
+          { month: "Abr", real: 10.1, predicted: 9.8 },
+          { month: "May", real: 8.9, predicted: 9.2 },
+          { month: "Jun", real: 9.5, predicted: 9.3 },
+          { month: "Jul", real: 11.2, predicted: 10.8 },
+          { month: "Ago", real: null, predicted: 10.5 },
+        ];
+
   // Helper para formatear período (YYYYMM -> Mes Corto)
   function formatPeriodo(periodo) {
     if (!periodo) return "";
-    const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const meses = [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic",
+    ];
     const mes = parseInt(periodo.toString().slice(-2)) - 1;
     return meses[mes] || periodo;
   }
@@ -100,4 +117,6 @@ export default function LossIndexChart({ data = [] }) {
       </ResponsiveContainer>
     </div>
   );
-}
+});
+
+export default LossIndexChart;

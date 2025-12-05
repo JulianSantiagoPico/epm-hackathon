@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -9,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = memo(({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 rounded-lg shadow-lg border border-border">
@@ -31,75 +32,78 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
-};
+});
 
-export default function AlertEvolutionChart() {
-  const data = [
-    {
-      mes: "Ene",
-      desbalance: 8,
-      anomalia: 3,
-      criticas: 5,
-      altas: 4,
-      medias: 2,
-    },
-    {
-      mes: "Feb",
-      desbalance: 12,
-      anomalia: 5,
-      criticas: 7,
-      altas: 6,
-      medias: 4,
-    },
-    {
-      mes: "Mar",
-      desbalance: 10,
-      anomalia: 4,
-      criticas: 6,
-      altas: 5,
-      medias: 3,
-    },
-    {
-      mes: "Abr",
-      desbalance: 15,
-      anomalia: 7,
-      criticas: 9,
-      altas: 8,
-      medias: 5,
-    },
-    {
-      mes: "May",
-      desbalance: 11,
-      anomalia: 6,
-      criticas: 7,
-      altas: 6,
-      medias: 4,
-    },
-    {
-      mes: "Jun",
-      desbalance: 9,
-      anomalia: 4,
-      criticas: 6,
-      altas: 5,
-      medias: 2,
-    },
-    {
-      mes: "Jul",
-      desbalance: 13,
-      anomalia: 8,
-      criticas: 10,
-      altas: 7,
-      medias: 4,
-    },
-    {
-      mes: "Ago",
-      desbalance: 14,
-      anomalia: 6,
-      criticas: 8,
-      altas: 7,
-      medias: 5,
-    },
-  ];
+const AlertEvolutionChart = memo(function AlertEvolutionChart() {
+  const data = useMemo(
+    () => [
+      {
+        mes: "Ene",
+        desbalance: 8,
+        anomalia: 3,
+        criticas: 5,
+        altas: 4,
+        medias: 2,
+      },
+      {
+        mes: "Feb",
+        desbalance: 12,
+        anomalia: 5,
+        criticas: 7,
+        altas: 6,
+        medias: 4,
+      },
+      {
+        mes: "Mar",
+        desbalance: 10,
+        anomalia: 4,
+        criticas: 6,
+        altas: 5,
+        medias: 3,
+      },
+      {
+        mes: "Abr",
+        desbalance: 15,
+        anomalia: 7,
+        criticas: 9,
+        altas: 8,
+        medias: 5,
+      },
+      {
+        mes: "May",
+        desbalance: 11,
+        anomalia: 6,
+        criticas: 7,
+        altas: 6,
+        medias: 4,
+      },
+      {
+        mes: "Jun",
+        desbalance: 9,
+        anomalia: 4,
+        criticas: 6,
+        altas: 5,
+        medias: 2,
+      },
+      {
+        mes: "Jul",
+        desbalance: 13,
+        anomalia: 8,
+        criticas: 10,
+        altas: 7,
+        medias: 4,
+      },
+      {
+        mes: "Ago",
+        desbalance: 14,
+        anomalia: 6,
+        criticas: 8,
+        altas: 7,
+        medias: 5,
+      },
+    ],
+    []
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">
@@ -161,4 +165,6 @@ export default function AlertEvolutionChart() {
       </div>
     </div>
   );
-}
+});
+
+export default AlertEvolutionChart;

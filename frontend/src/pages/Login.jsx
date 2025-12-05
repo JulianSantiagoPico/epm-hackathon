@@ -35,7 +35,7 @@ const Login = () => {
     },
     {
       key: ROLES.OPERATOR,
-      name: "Operador",
+      name: "Equipo Técnico",
       icon: <Users className="w-12 h-12" />,
       description: "Consulta de balances y gestión de alertas operativas",
       color: "from-secondary/20 to-secondary/5 border-secondary",

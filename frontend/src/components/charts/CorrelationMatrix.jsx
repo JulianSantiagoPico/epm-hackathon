@@ -1,8 +1,13 @@
-import { Network } from "lucide-react";
+import { memo } from "react";
+import { Network, Loader2 } from "lucide-react";
 
-export default function CorrelationMatrix({ data = null }) {
-  // Mock data - matriz de correlación
-  const variables = [
+const CorrelationMatrix = memo(function CorrelationMatrix({
+  data = null,
+  loading = false,
+  error = null,
+}) {
+  // Mock data como fallback
+  const defaultVariables = [
     "Volumen Corregido",
     "Presión",
     "Temperatura",
@@ -11,7 +16,7 @@ export default function CorrelationMatrix({ data = null }) {
     "Mes",
   ];
 
-  const correlationData = data || [
+  const defaultCorrelationData = [
     [1.0, 0.65, -0.32, 0.78, 0.45, 0.12],
     [0.65, 1.0, -0.18, 0.52, 0.38, 0.08],
     [-0.32, -0.18, 1.0, -0.25, -0.15, -0.42],
@@ -19,6 +24,10 @@ export default function CorrelationMatrix({ data = null }) {
     [0.45, 0.38, -0.15, 0.42, 1.0, 0.05],
     [0.12, 0.08, -0.42, 0.15, 0.05, 1.0],
   ];
+
+  // Usar datos de la API si existen
+  const variables = data?.variables || defaultVariables;
+  const correlationData = data?.matrix || defaultCorrelationData;
 
   const getColor = (value) => {
     const absValue = Math.abs(value);
@@ -30,6 +39,57 @@ export default function CorrelationMatrix({ data = null }) {
     if (absValue >= 0.3) return value > 0 ? "bg-success/30" : "bg-error/30";
     return "bg-backgroundSecondary";
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md border border-border">
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <Network className="w-6 h-6 text-primary" />
+            <div>
+              <h3 className="text-lg font-semibold text-textMain">
+                Matriz de Correlación
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-md border border-border">
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <Network className="w-6 h-6 text-primary" />
+            <div>
+              <h3 className="text-lg font-semibold text-textMain">
+                Matriz de Correlación
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <p className="text-error font-medium mb-2">
+                Error al cargar matriz
+              </p>
+              <p className="text-sm text-textSecondary">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-border">
@@ -72,7 +132,7 @@ export default function CorrelationMatrix({ data = null }) {
               {variables.map((variable, index) => (
                 <th
                   key={index}
-                  className="p-2 text-center text-xs font-medium text-textSecondary min-w-[80px]"
+                  className="p-2 text-center text-xs font-medium text-textSecondary min-w-20"
                 >
                   <div className="transform -rotate-45 origin-left whitespace-nowrap">
                     {variable}
@@ -118,4 +178,6 @@ export default function CorrelationMatrix({ data = null }) {
       </div>
     </div>
   );
-}
+});
+
+export default CorrelationMatrix;

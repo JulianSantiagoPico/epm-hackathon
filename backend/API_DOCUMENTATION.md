@@ -456,18 +456,65 @@ Correlaciones de una variable específica.
 }
 ```
 
+#### `GET /api/correlations/scatter?var_x=VOLUMEN_ENTRADA_FINAL&var_y=INDICE_PERDIDAS_FINAL` ⭐ NUEVO
+
+Obtiene datos para scatter plot entre dos variables.
+
+**Query params:**
+
+- `var_x` (requerido): Nombre de la variable para el eje X
+- `var_y` (requerido): Nombre de la variable para el eje Y
+- `valvula_id` (opcional): Filtrar por válvula específica
+
+**Variables disponibles:**
+
+- `VOLUMEN_ENTRADA_FINAL`, `VOLUMEN_SALIDA_FINAL`
+- `PERDIDAS_FINAL`, `INDICE_PERDIDAS_FINAL`
+- `PRESION_FINAL`, `TEMPERATURA_FINAL`, `KPT_FINAL`
+- `NUM_USUARIOS`
+
+**Respuesta:**
+
+```json
+{
+  "var_x": "VOLUMEN_ENTRADA_FINAL",
+  "var_y": "INDICE_PERDIDAS_FINAL",
+  "data": [
+    {
+      "x": 66.5,
+      "y": -0.130385087,
+      "valvula": "VALVULA_1",
+      "periodo": "202409"
+    },
+    {
+      "x": 428.15,
+      "y": -0.036611001,
+      "valvula": "VALVULA_1",
+      "periodo": "202410"
+    }
+  ],
+  "correlation": 0.8664,
+  "total_puntos": 30
+}
+```
+
 ---
 
 ### 🚨 Alertas (`/api/alerts`)
 
-#### `GET /api/alerts/?nivel=ALTO&valvula=VALVULA_1`
+> 📄 **Documentación completa**: Ver [ALERTAS_API.md](./ALERTAS_API.md) para guía detallada y ejemplos de integración.
 
-Obtiene todas las alertas.
+#### `GET /api/alerts/` ⭐ Mejorado
+
+Obtiene todas las alertas con filtros avanzados.
 
 **Query params:**
 
 - `nivel` (opcional): BAJO, MEDIO, ALTO, CRITICO
-- `valvula` (opcional): Filtrar por válvula
+- `valvula` (opcional): Filtrar por válvula (ej: VALVULA_1)
+- `estado` (opcional): pendiente, revisada, resuelta
+- `tipo` (opcional): Desbalance, Anomalía
+- `severidad` (opcional): critica, alta, media, baja
 
 **Respuesta:**
 
@@ -475,31 +522,41 @@ Obtiene todas las alertas.
 {
   "alertas": [
     {
+      "id": 1,
+      "fecha": "2025-12-04 14:30",
       "valvula": "VALVULA_1",
-      "nivel": "ALTO",
-      "mensajes": "Pérdidas negativas en 4 periodo(s)",
+      "ubicacion": "Sector Norte",
+      "tipo": "Anomalía",
+      "severidad": "alta",
+      "descripcion": "Detección de pérdidas negativas en 4 periodo(s). Índice de pérdidas de 48.0%. Requiere revisión de datos o posibles inconsistencias en mediciones.",
+      "estado": "pendiente",
       "metricas": {
         "indice_perdidas": 48.03,
-        "entrada_promedio": 366.5
+        "entrada_promedio": 366.5,
+        "volumen_perdido": 176.05,
+        "umbral": 12.0
       }
     }
   ],
-  "total": 5
+  "total": 1
 }
 ```
 
-#### `GET /api/alerts/stats`
+#### `GET /api/alerts/stats` ⭐ Mejorado
 
-Estadísticas de alertas por nivel.
+Estadísticas extendidas de alertas por estado y severidad.
 
 **Respuesta:**
 
 ```json
 {
-  "total": 7,
-  "criticas": 2,
-  "altas": 3,
-  "medias": 2,
+  "total": 8,
+  "pendientes": 3,
+  "revisadas": 3,
+  "resueltas": 2,
+  "criticas": 0,
+  "altas": 5,
+  "medias": 0,
   "bajas": 0
 }
 ```
@@ -508,32 +565,49 @@ Estadísticas de alertas por nivel.
 
 Alertas de una válvula específica.
 
-**Respuesta:**
-
-```json
-{
-  "valvula": "VALVULA_1",
-  "alertas": [
-    /* array */
-  ],
-  "total": 1,
-  "nivel_mas_alto": "ALTO"
-}
-```
+**Respuesta:** Igual formato que `/api/alerts/`
 
 #### `GET /api/alerts/critical`
 
 Solo alertas críticas.
 
+**Respuesta:** Igual formato que `/api/alerts/`
+
+#### `GET /api/alerts/recent?limit=10` 🆕
+
+Alertas más recientes ordenadas por fecha.
+
+**Query params:**
+
+- `limit` (opcional): Número máximo (default: 10, max: 100)
+
+#### `PATCH /api/alerts/{alert_id}` 🆕
+
+Actualiza el estado de una alerta.
+
+**Body:**
+
+```json
+{
+  "estado": "revisada"
+}
+```
+
+Estados válidos: `pendiente`, `revisada`, `resuelta`
+
 **Respuesta:**
 
 ```json
 {
-  "alertas": [
-    /* array */
-  ],
-  "total": 2,
-  "requires_immediate_action": true
+  "success": true,
+  "message": "Estado de alerta 1 actualizado a 'revisada'",
+  "alert": {
+    "id": 1,
+    "fecha": "2025-12-04 14:30",
+    "valvula": "VALVULA_1",
+    "estado": "revisada",
+    ...
+  }
 }
 ```
 

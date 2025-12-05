@@ -1,20 +1,125 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import CorrelationMatrix from "../components/charts/CorrelationMatrix";
 import InteractiveScatterPlot from "../components/charts/InteractiveScatterPlot";
 import TopCorrelationsCard from "../components/ui/TopCorrelationsCard";
+import api from "../services/api";
 
 export default function Correlations() {
-  const [xVariable, setXVariable] = useState("Volumen Corregido (m³)");
-  const [yVariable, setYVariable] = useState("Índice de Pérdidas (%)");
+  // Mapeo de nombres de UI a nombres de API (memoizado)
+  const variableMapping = useMemo(
+    () => ({
+      "Volumen Corregido (m³)": "VOLUMEN_ENTRADA_FINAL",
+      "Presión (bar)": "PRESION_FINAL",
+      "Temperatura (°C)": "TEMPERATURA_FINAL",
+      "Índice de Pérdidas (%)": "INDICE_PERDIDAS_FINAL",
+      "KPT (Factor)": "KPT_FINAL",
+      "Número de Usuarios": "NUM_USUARIOS",
+    }),
+    []
+  );
 
-  const variables = [
-    "Volumen Corregido (m³)",
-    "Presión (bar)",
-    "Temperatura (°C)",
-    "Índice de Pérdidas (%)",
-    "KPT (Factor)",
-    "Mes",
-  ];
+  const variables = useMemo(
+    () => Object.keys(variableMapping),
+    [variableMapping]
+  );
+
+  const [xVariable, setXVariable] = useState(variables[0]);
+  const [yVariable, setYVariable] = useState(variables[3]);
+
+  // Estados para datos de API
+  const [topCorrelations, setTopCorrelations] = useState(null);
+  const [correlationMatrix, setCorrelationMatrix] = useState(null);
+  const [scatterData, setScatterData] = useState(null);
+  const [loadingTop, setLoadingTop] = useState(true);
+  const [loadingMatrix, setLoadingMatrix] = useState(true);
+  const [loadingScatter, setLoadingScatter] = useState(false);
+  const [errorTop, setErrorTop] = useState(null);
+  const [errorMatrix, setErrorMatrix] = useState(null);
+  const [errorScatter, setErrorScatter] = useState(null);
+  const [scatterCorrelation, setScatterCorrelation] = useState(null);
+
+  // Cargar top correlaciones (memoizado)
+  const fetchTopCorrelations = useCallback(async () => {
+    try {
+      setLoadingTop(true);
+      setErrorTop(null);
+      const data = await api.correlations.getTopCorrelations(3);
+      setTopCorrelations(data);
+    } catch (error) {
+      console.error("Error al cargar top correlaciones:", error);
+      setErrorTop(error.message || "Error al cargar las correlaciones");
+    } finally {
+      setLoadingTop(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTopCorrelations();
+  }, [fetchTopCorrelations]);
+
+  // Cargar matriz de correlación (memoizado)
+  const fetchCorrelationMatrix = useCallback(async () => {
+    try {
+      setLoadingMatrix(true);
+      setErrorMatrix(null);
+      const data = await api.correlations.getMatrix();
+      setCorrelationMatrix(data);
+    } catch (error) {
+      console.error("Error al cargar matriz de correlación:", error);
+      setErrorMatrix(error.message || "Error al cargar la matriz");
+    } finally {
+      setLoadingMatrix(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCorrelationMatrix();
+  }, [fetchCorrelationMatrix]);
+
+  // Cargar datos de scatter plot cuando cambien las variables (memoizado)
+  const fetchScatterData = useCallback(async () => {
+    try {
+      setLoadingScatter(true);
+      setErrorScatter(null);
+
+      const varX = variableMapping[xVariable];
+      const varY = variableMapping[yVariable];
+
+      const response = await api.correlations.getScatterData(varX, varY);
+
+      // Transformar datos de la API al formato del componente
+      const transformedData = response.data.map((point) => ({
+        x: point.x,
+        y: point.y,
+        valvula: point.valvula,
+        periodo: point.periodo,
+        z: 5, // tamaño del punto
+      }));
+
+      setScatterData(transformedData);
+      setScatterCorrelation(response.correlation);
+    } catch (error) {
+      console.error("Error al cargar scatter plot:", error);
+      setErrorScatter(error.message || "Error al cargar los datos");
+      setScatterData(null);
+      setScatterCorrelation(null);
+    } finally {
+      setLoadingScatter(false);
+    }
+  }, [xVariable, yVariable, variableMapping]);
+
+  useEffect(() => {
+    fetchScatterData();
+  }, [fetchScatterData]);
+
+  // Handlers memoizados
+  const handleXVariableChange = useCallback((e) => {
+    setXVariable(e.target.value);
+  }, []);
+
+  const handleYVariableChange = useCallback((e) => {
+    setYVariable(e.target.value);
+  }, []);
 
   return (
     <div className="min-h-screen bg-backgroundSecondary">
@@ -34,12 +139,20 @@ export default function Correlations() {
       <div className="p-6 space-y-6">
         {/* Top Correlaciones */}
         <section>
-          <TopCorrelationsCard />
+          <TopCorrelationsCard
+            correlations={topCorrelations}
+            loading={loadingTop}
+            error={errorTop}
+          />
         </section>
 
         {/* Matriz de Correlación */}
         <section>
-          <CorrelationMatrix />
+          <CorrelationMatrix
+            data={correlationMatrix}
+            loading={loadingMatrix}
+            error={errorMatrix}
+          />
         </section>
 
         {/* Selector de Variables para Scatter */}
@@ -58,7 +171,7 @@ export default function Correlations() {
               </label>
               <select
                 value={xVariable}
-                onChange={(e) => setXVariable(e.target.value)}
+                onChange={handleXVariableChange}
                 className="w-full px-4 py-2 bg-white border border-border rounded-lg text-textMain focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {variables.map((variable) => (
@@ -75,7 +188,7 @@ export default function Correlations() {
               </label>
               <select
                 value={yVariable}
-                onChange={(e) => setYVariable(e.target.value)}
+                onChange={handleYVariableChange}
                 className="w-full px-4 py-2 bg-white border border-border rounded-lg text-textMain focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {variables.map((variable) => (
@@ -90,7 +203,14 @@ export default function Correlations() {
 
         {/* Scatter Plot Interactivo */}
         <section>
-          <InteractiveScatterPlot xVariable={xVariable} yVariable={yVariable} />
+          <InteractiveScatterPlot
+            xVariable={xVariable}
+            yVariable={yVariable}
+            data={scatterData}
+            loading={loadingScatter}
+            error={errorScatter}
+            correlation={scatterCorrelation}
+          />
         </section>
 
         {/* Insights */}

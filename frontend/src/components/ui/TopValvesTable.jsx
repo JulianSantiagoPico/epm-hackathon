@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { AlertTriangle, TrendingUp } from "lucide-react";
 
-export default function TopValvesTable({ data = [] }) {
+const TopValvesTable = memo(function TopValvesTable({ data = [] }) {
   // Transformar datos de la API al formato del componente
   const displayValves =
     data.length > 0
@@ -13,12 +14,12 @@ export default function TopValvesTable({ data = [] }) {
           perdidas: valve.perdidas_promedio,
           periodos: valve.num_periodos,
           status:
-            valve.indice_perdidas > 15
+            valve.indice_perdidas > 20
               ? "critical"
-              : valve.indice_perdidas > 10
+              : valve.indice_perdidas > 12
               ? "warning"
               : "normal",
-          trend: valve.perdidas_promedio < 0 ? "down" : "up",
+          trend: Math.abs(valve.perdidas_promedio) > 1000 ? "up" : "neutral",
         }))
       : [];
 
@@ -48,7 +49,11 @@ export default function TopValvesTable({ data = [] }) {
     if (trend === "up") return <TrendingUp className="w-4 h-4 text-error" />;
     if (trend === "down")
       return <TrendingUp className="w-4 h-4 text-success rotate-180" />;
-    return <span className="text-textSecondary text-xs">—</span>;
+    return (
+      <span className="text-textSecondary text-xs flex items-center justify-center">
+        —
+      </span>
+    );
   };
 
   return (
@@ -148,4 +153,6 @@ export default function TopValvesTable({ data = [] }) {
       </div>
     </div>
   );
-}
+});
+
+export default TopValvesTable;

@@ -21,8 +21,15 @@ export const useUserStore = create(
       // Verificar si el usuario tiene un permiso específico
       hasPermission: (permission) => {
         const state = useUserStore.getState();
-        return state.permissions[permission] === true;
+        return state.permissions?.[permission] === true;
       },
+
+      // Cerrar sesión
+      logout: () =>
+        set({
+          currentRole: null,
+          permissions: null,
+        }),
     }),
     {
       name: "user-storage", // nombre del item en localStorage

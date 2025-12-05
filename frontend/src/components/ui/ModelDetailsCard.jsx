@@ -1,13 +1,14 @@
+import { memo } from "react";
 import { Settings, TrendingUp, Package } from "lucide-react";
 
-export default function ModelDetailsCard({
-  modelId = "xgboost",
+const ModelDetailsCard = memo(function ModelDetailsCard({
+  modelId = "lightgbm",
   details = null,
 }) {
-  // Mock data según el modelo
-  const modelDetails = details || {
-    xgboost: {
-      version: "XGBoost 2.0.3",
+  // Mock data como fallback
+  const mockData = {
+    lightgbm: {
+      version: "LightGBM 4.1.0",
       framework: "Scikit-Learn 1.3.2",
       trainedOn: "2025-12-01",
       dataPoints: 15240,
@@ -15,6 +16,7 @@ export default function ModelDetailsCard({
         n_estimators: 100,
         max_depth: 6,
         learning_rate: 0.1,
+        num_leaves: 31,
         subsample: 0.8,
         colsample_bytree: 0.8,
       },
@@ -27,28 +29,61 @@ export default function ModelDetailsCard({
         { name: "tipo_usuario", importance: 0.05 },
       ],
     },
-    prophet: {
-      version: "Prophet 1.1.5",
-      framework: "Facebook Prophet",
+    catboost: {
+      version: "CatBoost 1.2.2",
+      framework: "CatBoost Native",
       trainedOn: "2025-12-01",
       dataPoints: 15240,
       hyperparameters: {
-        changepoint_prior_scale: 0.05,
-        seasonality_prior_scale: 10,
-        holidays_prior_scale: 10,
-        seasonality_mode: "multiplicative",
-        yearly_seasonality: true,
+        iterations: 100,
+        depth: 6,
+        learning_rate: 0.1,
+        l2_leaf_reg: 3,
+        border_count: 128,
       },
       features: [
-        { name: "tendencia", importance: 0.42 },
-        { name: "estacionalidad_anual", importance: 0.28 },
-        { name: "estacionalidad_mensual", importance: 0.18 },
-        { name: "efectos_festivos", importance: 0.12 },
+        { name: "volumen_corregido", importance: 0.38 },
+        { name: "presion", importance: 0.24 },
+        { name: "temperatura", importance: 0.16 },
+        { name: "mes", importance: 0.11 },
+        { name: "num_usuarios", importance: 0.07 },
+        { name: "estrato", importance: 0.04 },
+      ],
+    },
+    randomforest: {
+      version: "RandomForest",
+      framework: "Scikit-Learn 1.3.2",
+      trainedOn: "2025-12-01",
+      dataPoints: 15240,
+      hyperparameters: {
+        n_estimators: 100,
+        max_depth: 10,
+        min_samples_split: 5,
+        min_samples_leaf: 2,
+        max_features: "sqrt",
+      },
+      features: [
+        { name: "volumen_corregido", importance: 0.32 },
+        { name: "presion", importance: 0.2 },
+        { name: "temperatura", importance: 0.19 },
+        { name: "mes", importance: 0.14 },
+        { name: "estrato", importance: 0.09 },
+        { name: "tipo_usuario", importance: 0.06 },
       ],
     },
   };
 
-  const currentModel = modelDetails[modelId] || modelDetails.xgboost;
+  // Usar datos del backend si están disponibles, sino usar mock
+  const currentModel = details
+    ? {
+        version: details.version,
+        framework: details.framework,
+        trainedOn: details.trained_on,
+        dataPoints: details.data_points,
+        hyperparameters: details.hyperparameters,
+        features: details.features,
+      }
+    : mockData[modelId] || mockData.lightgbm;
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-border">
@@ -164,4 +199,6 @@ export default function ModelDetailsCard({
       </div>
     </div>
   );
-}
+});
+
+export default ModelDetailsCard;

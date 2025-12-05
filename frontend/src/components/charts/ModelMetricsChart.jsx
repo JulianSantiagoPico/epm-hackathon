@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   BarChart,
   Bar,
@@ -10,7 +11,7 @@ import {
   Cell,
 } from "recharts";
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = memo(function CustomTooltip({ active, payload }) {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 rounded-lg shadow-lg border border-border">
@@ -24,9 +25,12 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
-};
+});
 
-export default function ModelMetricsChart({ models = [], metric = "mae" }) {
+const ModelMetricsChart = memo(function ModelMetricsChart({
+  models = [],
+  metric = "mae",
+}) {
   // Mock data si no hay modelos
   const displayModels =
     models.length > 0
@@ -46,6 +50,17 @@ export default function ModelMetricsChart({ models = [], metric = "mae" }) {
       label: "RMSE (Error Cuadrático Medio)",
       color: "#2e7d5f",
       description: "Valores menores son mejores",
+    },
+    mape: {
+      label: "MAPE (Error Porcentual Absoluto Medio)",
+      color: "#4a90e2",
+      description: "Valores menores son mejores (%)",
+    },
+    mase: {
+      label: "MASE (Error Absoluto Escalado Medio)",
+      color: "#f39c12",
+      description:
+        "Valores menores que 1 indican mejor predicción que el modelo naive",
     },
     r2: {
       label: "R² Score (Coeficiente de Determinación)",
@@ -129,4 +144,6 @@ export default function ModelMetricsChart({ models = [], metric = "mae" }) {
       </div>
     </div>
   );
-}
+});
+
+export default ModelMetricsChart;

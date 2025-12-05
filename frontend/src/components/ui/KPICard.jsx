@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-export default function KPICard({
+const KPICard = memo(function KPICard({
   title,
   value,
   unit,
@@ -54,4 +55,6 @@ export default function KPICard({
       </div>
     </div>
   );
-}
+});
+
+export default KPICard;

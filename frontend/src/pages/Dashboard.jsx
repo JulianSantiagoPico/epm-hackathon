@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Activity, Scale, AlertTriangle, Database, TrendingUp, Target } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Activity, Scale, AlertTriangle, Database, Target } from "lucide-react";
 import KPICard from "../components/ui/KPICard";
 import LossIndexChart from "../components/charts/LossIndexChart";
 import TopValvesTable from "../components/ui/TopValvesTable";
@@ -15,35 +15,63 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Cargar datos en paralelo
-        const [summary, reliability, bestModels] = await Promise.all([
-          dashboardAPI.getSummary(),
-          reliabilityAPI.getAll(),
-          modelsAPI.getBestByValve?.() || Promise.resolve({ valves: [] })
-        ]);
+      // Cargar datos en paralelo
+      const [summary, reliability, bestModels] = await Promise.all([
+        dashboardAPI.getSummary(),
+        reliabilityAPI.getAll(),
+        modelsAPI.getBestByValve?.() || Promise.resolve({ valves: [] }),
+      ]);
 
-        setKpis(summary.kpis);
-        setLossIndexData(summary.loss_index_evolution);
-        setTopValves(summary.top_valves);
-        setReliabilityData(reliability);
-        setBestModelsByValve(bestModels.valves || []);
-
-      } catch (err) {
-        console.error("Error al cargar dashboard:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
+      setKpis(summary.kpis);
+      setLossIndexData(summary.loss_index_evolution);
+      setTopValves(summary.top_valves);
+      setReliabilityData(reliability);
+      setBestModelsByValve(bestModels.valves || []);
+    } catch (err) {
+      console.error("Error al cargar dashboard:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Memorizar número de alertas activas (ANTES de returns condicionales)
+  const alertasActivas = useMemo(() => {
+    return topValves?.filter((v) => v.indice_perdidas > 12).length || 0;
+  }, [topValves]);
+
+  // Memorizar volumen procesado
+  const volumenProcesado = useMemo(() => {
+    return ((kpis?.perdidas_totales || 0) / 1000).toFixed(1);
+  }, [kpis?.perdidas_totales]);
+
+  // Memorizar health score
+  const healthScore = useMemo(() => {
+    if (!topValves || topValves.length === 0) {
+      return reliabilityData?.promedio_score || 85;
+    }
+
+    const normal = topValves.filter((v) => v.indice_perdidas <= 12).length;
+    const warning = topValves.filter(
+      (v) => v.indice_perdidas > 12 && v.indice_perdidas <= 20
+    ).length;
+    const critical = topValves.filter((v) => v.indice_perdidas > 20).length;
+    const total = topValves.length;
+
+    // Score ponderado: normal=100, warning=70, critical=30
+    const score = (normal * 100 + warning * 70 + critical * 30) / total;
+    return Math.round(score);
+  }, [topValves, reliabilityData]);
+
+  // Returns condicionales DESPUÉS de todos los hooks
   if (loading) {
     return (
       <div className="min-h-screen bg-backgroundSecondary flex items-center justify-center">
@@ -105,7 +133,7 @@ export default function Dashboard() {
           />
           <KPICard
             title="Alertas Activas"
-            value={topValves?.filter(v => v.indice_perdidas > 12).length || 0}
+            value={alertasActivas}
             unit="alertas"
             icon={AlertTriangle}
             color="warning"
@@ -113,32 +141,35 @@ export default function Dashboard() {
           />
           <KPICard
             title="Volumen Procesado"
-            value={((kpis?.perdidas_totales || 0) / 1000).toFixed(1)}
+            value={volumenProcesado}
             unit="k m³"
             icon={Database}
             color="secondary"
             trend="+5.3%"
           />
         </section>
-        
+
         {/* New: Reliability Summary Banner */}
         {reliabilityData && (
-          <section className="bg-gradient-to-r from-primary to-accent rounded-lg shadow-md p-6 border border-border text-white">
+          <section className="bg-linear-to-r from-primary to-accent rounded-lg shadow-md p-6 border border-border text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Target className="w-10 h-10" />
                 <div>
                   <h3 className="text-xl font-bold">
-                    Score Promedio de Confiabilidad: {reliabilityData.promedio_score?.toFixed(0) || 0}%
+                    Score Promedio de Confiabilidad:{" "}
+                    {reliabilityData.promedio_score?.toFixed(0) || 0}%
                   </h3>
                   <p className="text-sm opacity-90">
-                    {kpis?.modelos_unicos || 0} modelos diferentes usados - 
+                    {kpis?.modelos_unicos || 0} modelos diferentes usados -
                     Sistema multi-modelo adaptativo por válvula
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold">{kpis?.mejor_modelo || "N/A"}</div>
+                <div className="text-3xl font-bold">
+                  {kpis?.mejor_modelo || "N/A"}
+                </div>
                 <p className="text-sm opacity-90">Modelo más común</p>
               </div>
             </div>
@@ -152,9 +183,10 @@ export default function Dashboard() {
           </div>
           <div>
             <SystemHealthIndicator
-              healthScore={reliabilityData?.promedio_score || 85}
+              healthScore={healthScore}
               bestModel={kpis?.mejor_modelo}
               reliabilityData={reliabilityData}
+              topValves={topValves}
             />
           </div>
         </section>

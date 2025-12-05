@@ -105,6 +105,44 @@ class BestModelsByValveResponse(BaseModel):
     total_valvulas: int
 
 
+class PredictionScatterPoint(BaseModel):
+    """Punto de datos real vs predicho para scatter plot"""
+    id: int
+    real: float
+    predicted: float
+    valvula: Optional[str] = None
+    periodo: Optional[str] = None
+
+
+class PredictionScatterResponse(BaseModel):
+    """Respuesta con datos de scatter plot real vs predicho"""
+    modelo: str
+    valvula: Optional[str] = None
+    data: List[PredictionScatterPoint]
+    total_puntos: int
+    error_promedio: float = Field(..., description="Error promedio absoluto")
+    correlacion: Optional[float] = Field(None, description="Coeficiente de correlación")
+
+
+class FeatureImportance(BaseModel):
+    """Importancia de una característica en el modelo"""
+    name: str
+    importance: float
+
+
+class ModelDetailsResponse(BaseModel):
+    """Detalles técnicos completos de un modelo"""
+    id: str
+    name: str
+    version: str
+    framework: str
+    trained_on: str = Field(..., description="Fecha de entrenamiento")
+    data_points: int = Field(..., description="Cantidad de datos de entrenamiento")
+    hyperparameters: Dict = Field(..., description="Diccionario de hiperparámetros")
+    features: List[FeatureImportance]
+    metrics: ModelMetrics
+
+
 class ReliabilityScore(BaseModel):
     """Score de confiabilidad de un modelo por válvula"""
     valvula: str
@@ -186,20 +224,45 @@ class TopCorrelationsResponse(BaseModel):
     top_negative: List[CorrelationPair]
 
 
+class CorrelationScatterPoint(BaseModel):
+    """Punto de datos para scatter plot de correlación"""
+    x: float = Field(..., description="Valor de la variable X")
+    y: float = Field(..., description="Valor de la variable Y")
+    valvula: str = Field(..., description="ID de la válvula")
+    periodo: str = Field(..., description="Período del dato")
+
+
+class CorrelationScatterResponse(BaseModel):
+    """Respuesta con datos de scatter plot entre dos variables"""
+    var_x: str = Field(..., description="Nombre de la variable X")
+    var_y: str = Field(..., description="Nombre de la variable Y")
+    data: List[CorrelationScatterPoint] = Field(..., description="Puntos del scatter plot")
+    correlation: float = Field(..., description="Coeficiente de correlación de Pearson")
+    total_puntos: int = Field(..., description="Total de puntos de datos")
+
+
 # ==================== ALERT SCHEMAS ====================
 
 class AlertMetrics(BaseModel):
     """Métricas asociadas a una alerta"""
-    indice_perdidas: float
+    indice_perdidas: Optional[float] = None
     entrada_promedio: Optional[float] = None
+    volumen_perdido: Optional[float] = None
+    desviacion: Optional[float] = None
+    umbral: Optional[float] = None
 
 
 class Alert(BaseModel):
     """Alerta de desbalance o anomalía"""
-    valvula: str
-    nivel: str = Field(..., description="BAJO, MEDIO, ALTO, CRITICO")
-    mensajes: str
-    metricas: AlertMetrics
+    id: int = Field(..., description="ID único de la alerta")
+    fecha: str = Field(..., description="Fecha y hora de la alerta")
+    valvula: str = Field(..., description="ID de la válvula")
+    ubicacion: str = Field(..., description="Ubicación o sector de la válvula")
+    tipo: str = Field(..., description="Tipo: Desbalance, Anomalía")
+    severidad: str = Field(..., description="Severidad: critica, alta, media, baja")
+    descripcion: str = Field(..., description="Descripción detallada de la alerta")
+    estado: str = Field(..., description="Estado: pendiente, revisada, resuelta")
+    metricas: AlertMetrics = Field(..., description="Métricas asociadas")
 
 
 class AlertsResponse(BaseModel):
@@ -209,12 +272,38 @@ class AlertsResponse(BaseModel):
 
 
 class AlertStats(BaseModel):
-    """Estadísticas de alertas"""
+    """Estadísticas de alertas por severidad"""
     total: int
     criticas: int
     altas: int
     medias: int
     bajas: int = 0
+
+
+class AlertStatsExtended(BaseModel):
+    """Estadísticas extendidas de alertas"""
+    # Por estado
+    pendientes: int = 0
+    revisadas: int = 0
+    resueltas: int = 0
+    total: int = 0
+    # Por severidad
+    criticas: int = 0
+    altas: int = 0
+    medias: int = 0
+    bajas: int = 0
+
+
+class AlertUpdateRequest(BaseModel):
+    """Request para actualizar el estado de una alerta"""
+    estado: str = Field(..., description="Nuevo estado: pendiente, revisada, resuelta")
+
+
+class AlertUpdateResponse(BaseModel):
+    """Respuesta al actualizar una alerta"""
+    success: bool
+    message: str
+    alert: Optional[Alert] = None
 
 
 # ==================== PREDICTION SCHEMAS ====================

@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Eye } from "lucide-react";
 
-export default function AlertCard({ alert, onUpdateStatus }) {
+const AlertCard = memo(function AlertCard({ alert, onUpdateStatus }) {
   const getSeverityColor = (severity) => {
     switch (severity) {
       case "critica":
@@ -162,4 +163,6 @@ export default function AlertCard({ alert, onUpdateStatus }) {
       </div>
     </div>
   );
-}
+});
+
+export default AlertCard;

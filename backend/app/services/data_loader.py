@@ -427,6 +427,131 @@ class DataLoader:
         
         self._cache[cache_key] = df
         return df.copy()
+    
+    def load_predicciones_con_balance(self, use_cache: bool = True) -> pd.DataFrame:
+        """
+        Carga predicciones con balance
+        Archivo: Predicciones_Con_Balance.csv
+        
+        Columnas: VALVULA, PERIODO, FECHA, VOLUMEN_ENTRADA_FINAL, INDICE_PERDIDAS_FINAL,
+                  PRED_ENTRADA, PRED_SALIDA, PRED_PERDIDAS, PRED_INDICE_PERDIDAS, etc.
+        """
+        cache_key = "predicciones_con_balance"
+        
+        if use_cache and cache_key in self._cache:
+            return self._cache[cache_key].copy()
+        
+        df = self._read_csv("Predicciones_Con_Balance.csv")
+        df.columns = df.columns.str.strip().str.upper()
+        
+        # Convertir fecha
+        if 'FECHA' in df.columns:
+            df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+        
+        # Convertir columnas numéricas
+        numeric_cols = [
+            'VOLUMEN_ENTRADA_FINAL', 'VOLUMEN_SALIDA_FINAL', 'PERDIDAS_FINAL',
+            'INDICE_PERDIDAS_FINAL', 'PRED_ENTRADA', 'PRED_SALIDA', 
+            'PRED_PERDIDAS', 'PRED_INDICE_PERDIDAS'
+        ]
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+        
+        self._cache[cache_key] = df
+        return df.copy()
+    
+    def load_dataset_maestro(self, use_cache: bool = True) -> pd.DataFrame:
+        """
+        Carga dataset maestro completo de balances
+        Archivo: Dataset_Maestro_Balances.csv
+        
+        Contiene todos los datos históricos y futuros con todas las variables
+        Columnas: VALVULA, PERIODO, AÑO, MES, FECHA, VOLUMEN_ENTRADA_FINAL,
+                  VOLUMEN_SALIDA_FINAL, PERDIDAS_FINAL, INDICE_PERDIDAS_FINAL,
+                  PRESION_FINAL, TEMPERATURA_FINAL, KPT_FINAL, NUM_USUARIOS, etc.
+        """
+        cache_key = "dataset_maestro"
+        
+        if use_cache and cache_key in self._cache:
+            return self._cache[cache_key].copy()
+        
+        df = self._read_csv("Dataset_Maestro_Balances.csv")
+        df.columns = df.columns.str.strip().str.upper()
+        
+        # Convertir fecha
+        if 'FECHA' in df.columns:
+            df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+        
+        # Convertir columnas numéricas
+        numeric_cols = [
+            'VOLUMEN_ENTRADA_FINAL', 'VOLUMEN_SALIDA_FINAL', 'PERDIDAS_FINAL',
+            'INDICE_PERDIDAS_FINAL', 'PRESION_FINAL', 'TEMPERATURA_FINAL',
+            'KPT_FINAL', 'NUM_USUARIOS', 'VOLUMEN_ENTRADA_MACRO', 
+            'VOLUMEN_SALIDA_USUARIOS', 'PRESION_MACRO', 'TEMPERATURA_MACRO', 'KPT_MACRO'
+        ]
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+        
+        self._cache[cache_key] = df
+        return df.copy()
+    
+    def load_dataset_train(self, use_cache: bool = True) -> pd.DataFrame:
+        """
+        Carga dataset de entrenamiento
+        Archivo: Dataset_Train.csv
+        
+        Contiene datos históricos usados para entrenar los modelos
+        """
+        cache_key = "dataset_train"
+        
+        if use_cache and cache_key in self._cache:
+            return self._cache[cache_key].copy()
+        
+        df = self._read_csv("Dataset_Train.csv")
+        df.columns = df.columns.str.strip().str.upper()
+        
+        # Convertir fecha
+        if 'FECHA' in df.columns:
+            df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+        
+        # Convertir columnas numéricas
+        numeric_cols = [
+            'VOLUMEN_ENTRADA_FINAL', 'VOLUMEN_SALIDA_FINAL', 'PERDIDAS_FINAL',
+            'INDICE_PERDIDAS_FINAL', 'PRESION_FINAL', 'TEMPERATURA_FINAL',
+            'KPT_FINAL', 'NUM_USUARIOS', 'VOLUMEN_ENTRADA_MACRO', 
+            'VOLUMEN_SALIDA_USUARIOS', 'PRESION_MACRO', 'TEMPERATURA_MACRO', 'KPT_MACRO'
+        ]
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+        
+        self._cache[cache_key] = df
+        return df.copy()
+    
+    def load_resumen_analisis_modelos(self, use_cache: bool = True) -> pd.DataFrame:
+        """
+        Carga resumen de análisis de modelos (métricas agregadas)
+        Archivo: Resumen_Analisis_Modelos.csv
+        
+        Contiene estadísticas descriptivas (count, mean, std, min, max) por modelo
+        """
+        cache_key = "resumen_analisis_modelos"
+        
+        if use_cache and cache_key in self._cache:
+            return self._cache[cache_key].copy()
+        
+        df = self._read_csv("Resumen_Analisis_Modelos.csv")
+        df.columns = df.columns.str.strip().str.upper()
+        
+        # Convertir todas las columnas numéricas
+        for col in df.columns:
+            if col not in ['MODELO', '']:
+                df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+        
+        self._cache[cache_key] = df
+        return df.copy()
 
 
 # Instancia global del DataLoader

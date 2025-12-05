@@ -1,7 +1,12 @@
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { memo, useMemo } from "react";
+import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 
-export default function TopCorrelationsCard({ correlations = null }) {
-  // Mock data
+const TopCorrelationsCard = memo(function TopCorrelationsCard({
+  correlations = null,
+  loading = false,
+  error = null,
+}) {
+  // Mock data como fallback
   const defaultCorrelations = {
     positive: [
       { var1: "Volumen Corregido", var2: "Índice de Pérdidas", value: 0.78 },
@@ -15,7 +20,61 @@ export default function TopCorrelationsCard({ correlations = null }) {
     ],
   };
 
-  const data = correlations || defaultCorrelations;
+  // Transformar datos de la API si existen (memoizado)
+  const data = useMemo(
+    () =>
+      correlations
+        ? {
+            positive:
+              correlations.top_positive?.map((item) => ({
+                var1: item.var1,
+                var2: item.var2,
+                value: item.corr,
+              })) || [],
+            negative:
+              correlations.top_negative?.map((item) => ({
+                var1: item.var1,
+                var2: item.var2,
+                value: item.corr,
+              })) || [],
+          }
+        : defaultCorrelations,
+    [correlations]
+  );
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="bg-white rounded-lg shadow-md p-6 border border-border"
+          >
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 border border-border">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-error font-medium mb-2">
+              Error al cargar correlaciones
+            </p>
+            <p className="text-sm text-textSecondary">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -116,4 +175,6 @@ export default function TopCorrelationsCard({ correlations = null }) {
       </div>
     </div>
   );
-}
+});
+
+export default TopCorrelationsCard;

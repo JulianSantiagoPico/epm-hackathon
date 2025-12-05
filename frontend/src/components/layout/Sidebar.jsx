@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,7 +27,8 @@ const iconMap = {
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  const { currentRole } = useUserStore();
+  const navigate = useNavigate();
+  const { currentRole, logout } = useUserStore();
 
   // Obtener items de navegación según el rol
   const navigationItems = NAVIGATION_ITEMS[currentRole] || [];
@@ -38,6 +39,11 @@ export default function Sidebar() {
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -109,6 +115,7 @@ export default function Sidebar() {
       {/* Footer con Logout (opcional para después) */}
       <div className="border-t border-secondary p-4">
         <button
+          onClick={handleLogout}
           className={`
             flex items-center gap-3 px-3 py-2 rounded-lg
             text-white/80 hover:bg-secondary/50 hover:text-white

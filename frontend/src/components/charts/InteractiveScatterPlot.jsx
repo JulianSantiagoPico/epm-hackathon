@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -8,15 +9,15 @@ import {
   ResponsiveContainer,
   ZAxis,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Loader2 } from "lucide-react";
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = memo(({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
       <div className="bg-white p-3 rounded-lg shadow-lg border border-border">
         <p className="text-sm font-medium text-textMain mb-1">
-          Válvula {data.id}
+          {data.valvula} - {data.periodo}
         </p>
         <p className="text-sm text-primary">
           {payload[0].name}: {data.x.toFixed(2)}
@@ -28,31 +29,37 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
-};
+});
 
 // Mock data estático fuera del componente
 const defaultMockData = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
+  valvula: `VALVULA_${(i % 5) + 1}`,
+  periodo: `2024${String((i % 12) + 1).padStart(2, "0")}`,
   x: 50 + i * 3.2 + (i % 3) * 5,
   y: 5 + i * 0.4 + (i % 5) * 1.5,
   z: 5 + (i % 8),
 }));
 
-export default function InteractiveScatterPlot({
+const InteractiveScatterPlot = memo(function InteractiveScatterPlot({
   xVariable,
   yVariable,
   data = null,
+  loading = false,
+  error = null,
+  correlation: externalCorrelation = null,
 }) {
-  const displayData = data || defaultMockData;
+  const displayData = useMemo(() => data || defaultMockData, [data]);
 
-  // Calcular correlación simple
-  const calculateCorrelation = (data) => {
-    const n = data.length;
-    const sumX = data.reduce((sum, d) => sum + d.x, 0);
-    const sumY = data.reduce((sum, d) => sum + d.y, 0);
-    const sumXY = data.reduce((sum, d) => sum + d.x * d.y, 0);
-    const sumX2 = data.reduce((sum, d) => sum + d.x * d.x, 0);
-    const sumY2 = data.reduce((sum, d) => sum + d.y * d.y, 0);
+  // Calcular correlación simple (memoizado)
+  const calculatedCorrelation = useMemo(() => {
+    if (externalCorrelation !== null) return externalCorrelation;
+
+    const n = displayData.length;
+    const sumX = displayData.reduce((sum, d) => sum + d.x, 0);
+    const sumY = displayData.reduce((sum, d) => sum + d.y, 0);
+    const sumXY = displayData.reduce((sum, d) => sum + d.x * d.y, 0);
+    const sumX2 = displayData.reduce((sum, d) => sum + d.x * d.x, 0);
+    const sumY2 = displayData.reduce((sum, d) => sum + d.y * d.y, 0);
 
     const numerator = n * sumXY - sumX * sumY;
     const denominator = Math.sqrt(
@@ -60,23 +67,86 @@ export default function InteractiveScatterPlot({
     );
 
     return denominator === 0 ? 0 : numerator / denominator;
-  };
+  }, [displayData, externalCorrelation]);
 
-  const correlation = calculateCorrelation(displayData);
+  const correlation = calculatedCorrelation;
 
-  const getCorrelationLabel = (corr) => {
+  const getCorrelationLabel = useCallback((corr) => {
     const abs = Math.abs(corr);
     if (abs >= 0.7) return "Fuerte";
     if (abs >= 0.4) return "Moderada";
     return "Débil";
-  };
+  }, []);
 
-  const getCorrelationColor = (corr) => {
+  const getCorrelationColor = useCallback((corr) => {
     const abs = Math.abs(corr);
     if (abs >= 0.7) return corr > 0 ? "text-success" : "text-error";
     if (abs >= 0.4) return "text-warning";
     return "text-textSecondary";
-  };
+  }, []);
+
+  // Memoizar valores calculados
+  const correlationColor = useMemo(
+    () => getCorrelationColor(correlation),
+    [correlation, getCorrelationColor]
+  );
+
+  const correlationLabel = useMemo(
+    () => getCorrelationLabel(correlation),
+    [correlation, getCorrelationLabel]
+  );
+
+  const correlationType = useMemo(
+    () => (correlation > 0 ? "Positiva" : "Negativa"),
+    [correlation]
+  );
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 border border-border">
+        <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="w-6 h-6 text-primary" />
+          <div>
+            <h3 className="text-lg font-semibold text-textMain">
+              Análisis de Correlación
+            </h3>
+            <p className="text-sm text-textSecondary">
+              {xVariable} vs {yVariable}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 border border-border">
+        <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="w-6 h-6 text-primary" />
+          <div>
+            <h3 className="text-lg font-semibold text-textMain">
+              Análisis de Correlación
+            </h3>
+            <p className="text-sm text-textSecondary">
+              {xVariable} vs {yVariable}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <p className="text-error font-medium mb-2">Error al cargar datos</p>
+            <p className="text-sm text-textSecondary">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">
@@ -98,17 +168,11 @@ export default function InteractiveScatterPlot({
           <p className="text-xs text-textSecondary mb-1">
             Coeficiente de Pearson
           </p>
-          <p
-            className={`text-3xl font-bold ${getCorrelationColor(correlation)}`}
-          >
+          <p className={`text-3xl font-bold ${correlationColor}`}>
             {correlation.toFixed(3)}
           </p>
-          <p
-            className={`text-xs font-medium ${getCorrelationColor(
-              correlation
-            )}`}
-          >
-            {getCorrelationLabel(correlation)}
+          <p className={`text-xs font-medium ${correlationColor}`}>
+            {correlationLabel}
           </p>
         </div>
       </div>
@@ -171,21 +235,19 @@ export default function InteractiveScatterPlot({
                 correlation > 0 ? "text-success" : "text-error"
               }`}
             >
-              {correlation > 0 ? "Positiva" : "Negativa"}
+              {correlationType}
             </p>
           </div>
           <div>
             <p className="text-sm text-textSecondary">Fuerza</p>
-            <p
-              className={`text-lg font-bold ${getCorrelationColor(
-                correlation
-              )}`}
-            >
-              {getCorrelationLabel(correlation)}
+            <p className={`text-lg font-bold ${correlationColor}`}>
+              {correlationLabel}
             </p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+});
+
+export default InteractiveScatterPlot;

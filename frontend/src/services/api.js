@@ -79,12 +79,15 @@ export const dashboardAPI = {
   },
 };
 
-// ==================== BALANCES API (próximamente) ====================
+// ==================== BALANCES API ====================
 
 export const balancesAPI = {
   /**
    * Obtener balances por válvula
    * GET /api/balances/{valvula_id}
+   * @param {string} valvulaId - ID de la válvula (ej: VALVULA_1)
+   * @param {string} periodoInicio - Opcional: Formato YYYYMM (ej: 202407)
+   * @param {string} periodoFin - Opcional: Formato YYYYMM
    */
   getByValve: async (valvulaId, periodoInicio = null, periodoFin = null) => {
     let params = [];
@@ -97,10 +100,30 @@ export const balancesAPI = {
 
   /**
    * Listar todas las válvulas disponibles
-   * GET /api/balances/list
+   * GET /api/balances/
    */
   listValves: async () => {
-    return fetchAPI("/api/balances/list");
+    return fetchAPI("/api/balances/");
+  },
+
+  /**
+   * Obtener períodos disponibles para una válvula
+   * GET /api/balances/{valvula_id}/periodos
+   * @param {string} valvulaId - ID de la válvula
+   */
+  getPeriodos: async (valvulaId) => {
+    return fetchAPI(`/api/balances/${valvulaId}/periodos`);
+  },
+
+  /**
+   * Analizar balances con IA
+   * POST /api/balances/{valvula_id}/analyze
+   * @param {string} valvulaId - ID de la válvula
+   */
+  analyze: async (valvulaId) => {
+    return fetchAPI(`/api/balances/${valvulaId}/analyze`, {
+      method: "POST",
+    });
   },
 };
 
@@ -141,9 +164,40 @@ export const modelsAPI = {
   getBestByValve: async (metric = "mae") => {
     return fetchAPI(`/api/models/best-by-valve?metric=${metric}`);
   },
+
+  /**
+   * Obtener modelos disponibles
+   * GET /api/models/available
+   */
+  getAvailable: async () => {
+    return fetchAPI("/api/models/available");
+  },
+
+  /**
+   * Obtener datos de scatter plot (real vs predicho)
+   * GET /api/models/predictions-scatter
+   * @param {string} modelo - Nombre del modelo (LightGBM, CatBoost, RandomForest)
+   * @param {string} valvulaId - Opcional: ID de válvula
+   */
+  getPredictionsScatter: async (modelo, valvulaId = null) => {
+    let params = [`modelo=${encodeURIComponent(modelo)}`];
+    if (valvulaId) params.push(`valvula_id=${encodeURIComponent(valvulaId)}`);
+    return fetchAPI(`/api/models/predictions-scatter?${params.join("&")}`);
+  },
+
+  /**
+   * Obtener detalles técnicos de un modelo
+   * GET /api/models/{model_id}/details
+   * @param {string} modelId - ID del modelo (lightgbm, catboost, randomforest, xgboost, prophet)
+   * @param {string} valvulaId - Opcional: ID de válvula
+   */
+  getModelDetails: async (modelId, valvulaId = null) => {
+    const params = valvulaId ? `?valvula_id=${valvulaId}` : "";
+    return fetchAPI(`/api/models/${modelId}/details${params}`);
+  },
 };
 
-// ==================== CORRELATIONS API (próximamente) ====================
+// ==================== CORRELATIONS API ====================
 
 export const correlationsAPI = {
   /**
@@ -157,9 +211,39 @@ export const correlationsAPI = {
   /**
    * Obtener top correlaciones
    * GET /api/correlations/top
+   * @param {number} limit - Cantidad de correlaciones a retornar (default: 5)
    */
-  getTopCorrelations: async () => {
-    return fetchAPI("/api/correlations/top");
+  getTopCorrelations: async (limit = 5) => {
+    return fetchAPI(`/api/correlations/top?limit=${limit}`);
+  },
+
+  /**
+   * Obtener correlaciones de una variable específica
+   * GET /api/correlations/variable/{variable_name}
+   * @param {string} variableName - Nombre de la variable
+   */
+  getVariableCorrelations: async (variableName) => {
+    return fetchAPI(
+      `/api/correlations/variable/${encodeURIComponent(variableName)}`
+    );
+  },
+
+  /**
+   * Obtener datos de scatter plot entre dos variables
+   * GET /api/correlations/scatter
+   * @param {string} varX - Nombre de la variable X
+   * @param {string} varY - Nombre de la variable Y
+   * @param {string} valvulaId - (Opcional) Filtrar por válvula específica
+   */
+  getScatterData: async (varX, varY, valvulaId = null) => {
+    const params = new URLSearchParams({
+      var_x: varX,
+      var_y: varY,
+    });
+    if (valvulaId) {
+      params.append("valvula_id", valvulaId);
+    }
+    return fetchAPI(`/api/correlations/scatter?${params.toString()}`);
   },
 };
 

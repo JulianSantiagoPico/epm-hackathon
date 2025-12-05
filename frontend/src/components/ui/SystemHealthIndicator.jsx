@@ -1,10 +1,12 @@
+import { memo } from "react";
 import { Activity, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
-export default function SystemHealthIndicator({
+const SystemHealthIndicator = memo(function SystemHealthIndicator({
   healthScore = 85,
   issues = [],
   bestModel = null,
   reliabilityData = null,
+  topValves = [],
 }) {
   const getHealthStatus = (score) => {
     if (score >= 80)
@@ -32,32 +34,78 @@ export default function SystemHealthIndicator({
   const status = getHealthStatus(healthScore);
   const StatusIcon = status.icon;
 
-  // Calcular issues desde reliability data si está disponible
-  const displayIssues = issues.length > 0 
-    ? issues
-    : reliabilityData?.valves
-    ? [
-        {
-          type: "success",
-          count: reliabilityData.valves.filter(v => v.nivel === "ALTA").length,
-          label: "Válvulas operando normalmente",
-        },
-        {
-          type: "warning",
-          count: reliabilityData.valves.filter(v => v.nivel === "MEDIA-ALTA").length,
-          label: "Válvulas requieren monitoreo",
-        },
-        {
-          type: "error",
-          count: reliabilityData.valves.filter(v => v.score < 70).length,
-          label: "Válvulas en estado crítico",
-        },
-      ]
-    : [
-        { type: "success", count: 42, label: "Válvulas operando normalmente" },
-        { type: "warning", count: 3, label: "Válvulas requieren monitoreo" },
-        { type: "error", count: 2, label: "Válvulas en estado crítico" },
-      ];
+  // Calcular issues basados en los índices de pérdidas reales de las válvulas
+  // Usar topValves si está disponible, sino usar reliabilityData
+  const displayIssues =
+    issues.length > 0
+      ? issues
+      : topValves.length > 0
+      ? (() => {
+          // Usar los mismos criterios que TopValvesTable
+          const normal = topValves.filter(
+            (v) => v.indice_perdidas <= 12
+          ).length;
+          const warning = topValves.filter(
+            (v) => v.indice_perdidas > 12 && v.indice_perdidas <= 20
+          ).length;
+          const critical = topValves.filter(
+            (v) => v.indice_perdidas > 20
+          ).length;
+
+          return [
+            {
+              type: "success",
+              count: normal,
+              label: "Válvulas operando normalmente",
+            },
+            {
+              type: "warning",
+              count: warning,
+              label: "Válvulas requieren monitoreo",
+            },
+            {
+              type: "error",
+              count: critical,
+              label: "Válvulas en estado crítico",
+            },
+          ];
+        })()
+      : reliabilityData?.valves
+      ? (() => {
+          // Fallback: usar scores de confiabilidad
+          const normal = reliabilityData.valves.filter(
+            (v) => v.score >= 80
+          ).length;
+          const warning = reliabilityData.valves.filter(
+            (v) => v.score >= 60 && v.score < 80
+          ).length;
+          const critical = reliabilityData.valves.filter(
+            (v) => v.score < 60
+          ).length;
+
+          return [
+            {
+              type: "success",
+              count: normal,
+              label: "Válvulas operando normalmente",
+            },
+            {
+              type: "warning",
+              count: warning,
+              label: "Válvulas requieren monitoreo",
+            },
+            {
+              type: "error",
+              count: critical,
+              label: "Válvulas en estado crítico",
+            },
+          ];
+        })()
+      : [
+          { type: "success", count: 0, label: "Válvulas operando normalmente" },
+          { type: "warning", count: 0, label: "Válvulas requieren monitoreo" },
+          { type: "error", count: 0, label: "Válvulas en estado crítico" },
+        ];
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">
@@ -150,11 +198,17 @@ export default function SystemHealthIndicator({
       {bestModel && (
         <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-textSecondary">Modelo Principal:</span>
-            <span className="text-sm font-semibold text-primary">{bestModel}</span>
+            <span className="text-sm text-textSecondary">
+              Modelo Principal:
+            </span>
+            <span className="text-sm font-semibold text-primary">
+              {bestModel}
+            </span>
           </div>
         </div>
       )}
     </div>
   );
-}
+});
+
+export default SystemHealthIndicator;

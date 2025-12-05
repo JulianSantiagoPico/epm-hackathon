@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -11,7 +12,7 @@ import {
   ReferenceLine,
 } from "recharts";
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = memo(function CustomTooltip({ active, payload }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -30,9 +31,9 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
-};
+});
 
-export default function PredictionScatterChart({
+const PredictionScatterChart = memo(function PredictionScatterChart({
   data = [],
   modelName = "XGBoost",
 }) {
@@ -166,4 +167,6 @@ export default function PredictionScatterChart({
       </div>
     </div>
   );
-}
+});
+
+export default PredictionScatterChart;

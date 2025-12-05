@@ -257,7 +257,7 @@ const Landing = () => {
           </div>
 
           <a
-            href="https://unaulaedu-my.sharepoint.com/:b:/g/personal/karly_velasquez0845_unaula_edu_co/IQBAa7XGjkg7QoHToKVvudoVAdER3tHaWpjgsYJF9_WyBqw?e=LFPoqM"
+            href="https://unaulaedu-my.sharepoint.com/:b:/g/personal/karly_velasquez0845_unaula_edu_co/IQDS4dTHR2rzTIdneCJ809AOAW-KKnjPrfngwnYI423U7jg?e=FbP93i"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-secondary transition-colors shadow-lg hover:shadow-xl group"
@@ -351,7 +351,7 @@ const Landing = () => {
                 </li>
                 <li>
                   <a
-                    href="/documentacion/funcionamiento-completo.pdf"
+                    href="https://colab.research.google.com/drive/1BTW-taT_Zn00DOUNm9euatgfHQI-ZBI_?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-300 hover:text-primary transition-colors"

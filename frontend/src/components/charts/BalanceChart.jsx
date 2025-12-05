@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -9,43 +10,77 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = memo(({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 rounded-lg shadow-lg border border-border">
         <p className="text-sm font-medium text-textMain mb-2">{label}</p>
-        <p className="text-sm text-success">
-          Entrada: {payload[0]?.value.toLocaleString()} m³
-        </p>
-        <p className="text-sm text-error">
-          Salida: {payload[1]?.value.toLocaleString()} m³
-        </p>
-        {payload[2] && (
+        {payload[0] && payload[0].value !== null && (
+          <p className="text-sm text-success">
+            Entrada:{" "}
+            {payload[0].value.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}{" "}
+            m³
+          </p>
+        )}
+        {payload[1] && payload[1].value !== null && (
+          <p className="text-sm text-error">
+            Salida:{" "}
+            {payload[1].value.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}{" "}
+            m³
+          </p>
+        )}
+        {payload[2] && payload[2].value !== null && (
           <p className="text-sm text-warning">
-            Pérdidas: {payload[2].value.toLocaleString()} m³
+            Pérdidas:{" "}
+            {payload[2].value.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}{" "}
+            m³
           </p>
         )}
       </div>
     );
   }
   return null;
-};
+});
 
-export default function BalanceChart({ data = [] }) {
-  // Mock data si no hay datos
-  const displayData =
-    data.length > 0
-      ? data
-      : [
-          { month: "Ene", entrada: 12500, salida: 11450, perdidas: 1050 },
-          { month: "Feb", entrada: 13200, salida: 11980, perdidas: 1220 },
-          { month: "Mar", entrada: 11800, salida: 10950, perdidas: 850 },
-          { month: "Abr", entrada: 14100, salida: 12670, perdidas: 1430 },
-          { month: "May", entrada: 13500, salida: 12285, perdidas: 1215 },
-          { month: "Jun", entrada: 12900, salida: 11738, perdidas: 1162 },
-          { month: "Jul", entrada: 15200, salida: 13528, perdidas: 1672 },
-          { month: "Ago", entrada: 14800, salida: null, perdidas: null },
+const BalanceChart = memo(function BalanceChart({ data = [] }) {
+  // Transformar datos de la API al formato del gráfico (memoizado)
+  const displayData = useMemo(() => {
+    return data.map((item) => {
+      // Formato de periodo: YYYYMM a abreviatura del mes
+      const formatPeriodo = (periodo) => {
+        if (!periodo) return "N/A";
+        const month = periodo.substring(4, 6);
+        const meses = [
+          "Ene",
+          "Feb",
+          "Mar",
+          "Abr",
+          "May",
+          "Jun",
+          "Jul",
+          "Ago",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dic",
         ];
+        return meses[parseInt(month) - 1];
+      };
+
+      return {
+        month: formatPeriodo(item.periodo),
+        entrada: item.entrada || null,
+        salida: item.salida !== undefined ? item.salida : null,
+        perdidas: item.perdidas !== undefined ? item.perdidas : null,
+      };
+    });
+  }, [data]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-border">
@@ -120,4 +155,6 @@ export default function BalanceChart({ data = [] }) {
       </div>
     </div>
   );
-}
+});
+
+export default BalanceChart;

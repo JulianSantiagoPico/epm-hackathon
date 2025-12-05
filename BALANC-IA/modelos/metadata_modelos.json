@@ -1,0 +1,52 @@
+{
+  "VALVULA_1": {
+    "valvula": "VALVULA_1",
+    "modelos_disponibles": [
+      "prophet",
+      "lightgbm",
+      "randomforest",
+      "catboost"
+    ],
+    "features_por_modelo": {},
+    "fecha_entrenamiento": "2025-12-03 23:29:49"
+  },
+  "VALVULA_2": {
+    "valvula": "VALVULA_2",
+    "modelos_disponibles": [
+      "prophet",
+      "lightgbm",
+      "randomforest",
+      "catboost"
+    ],
+    "features_por_modelo": {},
+    "fecha_entrenamiento": "2025-12-03 23:29:49"
+  },
+  "VALVULA_3": {
+    "valvula": "VALVULA_3",
+    "modelos_disponibles": [
+      "prophet",
+      "lightgbm",
+      "randomforest",
+      "catboost"
+    ],
+    "features_por_modelo": {},
+    "fecha_entrenamiento": "2025-12-03 23:29:49"
+  },
+  "VALVULA_4": {
+    "valvula": "VALVULA_4",
+    "modelos_disponibles": [
+      "prophet",
+      "lightgbm",
+      "randomforest",
+      "catboost"
+    ],
+    "features_por_modelo": {},
+    "fecha_entrenamiento": "2025-12-03 23:29:49"
+  },
+  "VALVULA_5": {
+    "valvula": "VALVULA_5",
+    "modelos_disponibles": [],
+    "features_por_modelo": {},
+    "fecha_entrenamiento": "2025-12-03 23:29:49"
+  }
+}

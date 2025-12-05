@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='utf-8'/>
+  <title>Dashboard Balance Virtual</title>
+  <style>
+
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
+    h1, h2 { margin-top: 24px; }
+    h3 { margin-top: 18px; }
+
+  </style>
+</head>
+<body>
+  <h1>Dashboard Balance Virtual</h1>
+  <h2>Tabla Comparativa por Válvula</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>VALVULA</th>
+      <th>NUM_PERIODOS</th>
+      <th>ENTRADA_SUM</th>
+      <th>ENTRADA_MEAN</th>
+      <th>SALIDA_SUM</th>
+      <th>SALIDA_MEAN</th>
+      <th>PERDIDAS_SUM</th>
+      <th>PERDIDAS_MEAN</th>
+      <th>INDICE_PERDIDAS_MEAN</th>
+      <th>PERDIDAS_%_SOBRE_ENTRADA</th>
+      <th>RELACION_SALIDA_ENTRADA</th>
+      <th>RANK_PERDIDAS_%</th>
+      <th>RANK_INDICE_PERDIDAS_MEAN</th>
+      <th>MAE</th>
+      <th>RMSE</th>
+      <th>MAPE</th>
+      <th>MASE</th>
+      <th>N_TEST</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>VALVULA_1</td>
+      <td>4</td>
+      <td>1,466.012</td>
+      <td>366.503</td>
+      <td>2,170.629</td>
+      <td>542.657</td>
+      <td>-704.617</td>
+      <td>-176.154</td>
+      <td>-48.029</td>
+      <td>-48.063</td>
+      <td>1.481</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>106.214</td>
+      <td>112.320</td>
+      <td>23.824</td>
+      <td>1.454</td>
+      <td>2.000</td>
+    </tr>
+    <tr>
+      <td>VALVULA_4</td>
+      <td>12</td>
+      <td>304,519.088</td>
+      <td>25,376.591</td>
+      <td>384,838.425</td>
+      <td>32,069.869</td>
+      <td>-80,319.337</td>
+      <td>-6,693.278</td>
+      <td>-26.234</td>
+      <td>-26.376</td>
+      <td>1.264</td>
+      <td>2.000</td>
+      <td>2.000</td>
+      <td>5,758.280</td>
+      <td>6,160.971</td>
+      <td>18.512</td>
+      <td>1.314</td>
+      <td>2.000</td>
+    </tr>
+    <tr>
+      <td>VALVULA_2</td>
+      <td>11</td>
+      <td>22,973.973</td>
+      <td>2,088.543</td>
+      <td>28,154.120</td>
+      <td>2,559.465</td>
+      <td>-5,180.147</td>
+      <td>-470.922</td>
+      <td>-21.490</td>
+      <td>-22.548</td>
+      <td>1.225</td>
+      <td>3.000</td>
+      <td>3.000</td>
+      <td>323.743</td>
+      <td>337.765</td>
+      <td>18.040</td>
+      <td>1.681</td>
+      <td>2.000</td>
+    </tr>
+    <tr>
+      <td>VALVULA_3</td>
+      <td>5</td>
+      <td>137,155.808</td>
+      <td>27,431.162</td>
+      <td>157,386.489</td>
+      <td>31,477.298</td>
+      <td>-20,230.681</td>
+      <td>-4,046.136</td>
+      <td>-14.707</td>
+      <td>-14.750</td>
+      <td>1.148</td>
+      <td>4.000</td>
+      <td>4.000</td>
+      <td>4,448.629</td>
+      <td>4,457.668</td>
+      <td>15.713</td>
+      <td>7.839</td>
+      <td>2.000</td>
+    </tr>
+    <tr>
+      <td>VALVULA_5</td>
+      <td>13</td>
+      <td>58,542.553</td>
+      <td>4,503.273</td>
+      <td>64,232.538</td>
+      <td>4,940.964</td>
+      <td>-5,689.985</td>
+      <td>-437.691</td>
+      <td>-9.719</td>
+      <td>-9.719</td>
+      <td>1.097</td>
+      <td>5.000</td>
+      <td>5.000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+  <h2>Gráficas por Válvula</h2>
+  <h3>VALVULA_1 - Entrada vs Salida</h3><iframe src='VALVULA_1_entrada_salida.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_1 - Índice de Pérdidas</h3><iframe src='VALVULA_1_indice_perdidas.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_4 - Entrada vs Salida</h3><iframe src='VALVULA_4_entrada_salida.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_4 - Índice de Pérdidas</h3><iframe src='VALVULA_4_indice_perdidas.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_2 - Entrada vs Salida</h3><iframe src='VALVULA_2_entrada_salida.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_2 - Índice de Pérdidas</h3><iframe src='VALVULA_2_indice_perdidas.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_3 - Entrada vs Salida</h3><iframe src='VALVULA_3_entrada_salida.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_3 - Índice de Pérdidas</h3><iframe src='VALVULA_3_indice_perdidas.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_5 - Entrada vs Salida</h3><iframe src='VALVULA_5_entrada_salida.html' width='100%' height='400' frameborder='0'></iframe><h3>VALVULA_5 - Índice de Pérdidas</h3><iframe src='VALVULA_5_indice_perdidas.html' width='100%' height='400' frameborder='0'></iframe>
+</body>
+</html>

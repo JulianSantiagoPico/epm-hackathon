@@ -1,0 +1,7 @@
+INSIGHTS DEL ANÁLISIS EXPLORATORIO DE DATOS
+================================================================================
+
+1. ✅ Variables fuertemente correlacionadas con VOLUMEN_ENTRADA_FINAL: VOLUMEN_SALIDA_FINAL, KPT_FINAL, PERDIDAS_FINAL
+2. ⚠️ Variable con más valores faltantes: INDICE_PERDIDAS_FINAL (68.3%)
+3. ⚠️ Variable con muchos outliers: INDICE_PERDIDAS_FINAL (34.6%)
+4. ⚠️ Alta variabilidad en VOLUMEN_ENTRADA_FINAL (CV: 114.0%)
